@@ -1,0 +1,52 @@
+<!-- verificacao.html -->
+<!-- 1. Estrutura base HTML com integração VITE, CSS e JS -->
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Verificação de Documentos - VAMUX</title>
+
+  <!-- 2. CSS principal do projeto -->
+  <link rel="stylesheet" href="/src/css/style.css" />
+
+  <!-- 3. Ícone do projeto -->
+  <link rel="icon" href="/public/imagens/logo/favicon.png" />
+</head>
+<body>
+
+  <!-- 4. Container centralizado -->
+  <div class="container">
+
+    <!-- 5. Logo e título -->
+    <img src="/public/imagens/logo/logo.jpg" alt="Logo VAMUX" class="logo" />
+    <h1 class="gradient-text">Verificação de Documentos</h1>
+    <p>Envie os documentos abaixo para análise e liberação do seu cadastro.</p>
+
+    <!-- 6. Campos para envio de arquivos -->
+    <div class="form-group">
+      <label for="cnh">CNH (Carteira de Habilitação)</label>
+      <input type="file" id="cnh" accept="image/*,application/pdf" required />
+    </div>
+
+    <div class="form-group">
+      <label for="veiculo">Documento do Veículo</label>
+      <input type="file" id="veiculo" accept="image/*,application/pdf" required />
+    </div>
+
+    <div class="form-group">
+      <label for="comprovante">Comprovante de Residência</label>
+      <input type="file" id="comprovante" accept="image/*,application/pdf" required />
+    </div>
+
+    <!-- 7. Botão de envio -->
+    <button id="btnEnviar" class="btn">Enviar Documentos</button>
+
+    <!-- 8. Mensagem de status -->
+    <p id="mensagem-status" class="mensagem-status"></p>
+  </div>
+
+  <!-- 9. Script VITE modular -->
+  <script type="module" src="/src/javascript/verificacao.js" defer></script>
+</body>
+</html>

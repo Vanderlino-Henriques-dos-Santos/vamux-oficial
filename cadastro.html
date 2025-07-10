@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Cadastro - VAMUX</title>
+        <link rel="stylesheet" href="/src/css/style.css">
+    </head>
+    <body>
+        <div class="container">
+            <header>
+                <img src="/public/imagens/logo/logo.jpg" alt="Logo VAMUX" class="logo">
+                <h1 class="gradient-text">Crie sua conta</h1>
+            </header>
+            <main>
+                <form id="formCadastro">
+                    <!-- Nome -->
+                    <input
+                        type="text"
+                        id="nome"
+                        placeholder="Seu nome"
+                        class="input"
+                        required
+                    >
+                    <!-- E-mail -->
+                    <input
+                        type="email"
+                        id="email"
+                        placeholder="E-mail"
+                        class="input"
+                        required
+                    >
+                    <!-- Senha -->
+                    <input
+                        type="password"
+                        id="senha"
+                        placeholder="Senha"
+                        class="input"
+                        required
+                    >
+                    <!-- Tipo de usuário -->
+                    <div class="radio-group">
+                        <label>
+                            <input
+                                type="radio"
+                                name="tipo"
+                                value="passageiro"
+                                checked
+                            > Sou Passageiro
+                        </label>
+                        <label>
+                            <input type="radio" name="tipo" value="motorista"> Sou Motorista
+                        </label>
+                    </div>
+                    <!-- Campos adicionais para Motorista -->
+                    <div id="camposMotorista" style="display: none;">
+                        <input
+                            type="text"
+                            id="veiculo"
+                            placeholder="Veículo (modelo)"
+                            class="input"
+                        >
+                        <input
+                            type="text"
+                            id="placa"
+                            placeholder="Placa do veículo"
+                            class="input"
+                        >
+                    </div>
+                    <!-- Mensagem de status -->
+                    <div id="mensagemStatus" class="mensagem-status"></div>
+                    <!-- Botão de cadastro -->
+                    <button type="submit" class="btn">Cadastrar</button>
+                </form>
+                <!-- Link para login -->
+                <p style="margin-top: 20px;">
+                    Já tem conta?
+                    <a href="login.html" style="color: #8000c9; font-weight: bold;">Faça login</a>
+                </p>
+            </main>
+            <footer>
+                <p class="gradient-text">© 2025 VAMUX - Todos os direitos reservados.</p>
+            </footer>
+        </div>
+        <!-- JS (módulo e defer para Vite) -->
+        <script type="module" src="/src/javascript/cadastro.js" defer></script>
+        <!-- Mostrar campos de motorista se selecionado -->
+        <script>
+    const tipoRadios = document.querySelectorAll('input[name="tipo"]');
+    const camposMotorista = document.getElementById("camposMotorista");
+
+    tipoRadios.forEach(radio => {
+      radio.addEventListener("change", () => {
+        camposMotorista.style.display = radio.value === "motorista" ? "block" : "none";
+      });
+    });
+        </script>
+    </body>
+</html>
