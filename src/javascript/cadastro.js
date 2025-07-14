@@ -1,79 +1,88 @@
-// ================================
-// 🟣 VAMUX - cadastro.js
-// 📄 Realiza o cadastro no Firebase
-// ================================
+// src/javascript/cadastro.js
+// === CADASTRO DE PASSAGEIRO OU MOTORISTA VAMUX ===
+// Cria usuário no Firebase Auth e salva dados no Realtime Database
 
-// ✅ [1] Importações Firebase
-import { initializeApp } from "firebase/app";
-import {
-  getAuth,
-  createUserWithEmailAndPassword,
-  signOut,
-} from "firebase/auth";
-import { getDatabase, ref, set } from "firebase/database";
-import { firebaseConfig } from "./firebase-config.js";
+import { auth, database } from "./firebase-config.js";
+import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
+import { ref, set } from "firebase/database";
 
-// ✅ [2] Inicialização Firebase
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const database = getDatabase(app);
-
-// ✅ [3] Elementos do DOM
-const form = document.getElementById("formCadastro");
-const nomeInput = document.getElementById("nome");
-const emailInput = document.getElementById("email");
-const senhaInput = document.getElementById("senha");
-const tipoUsuario = document.querySelector('input[name="tipo"]:checked');
-const veiculoInput = document.getElementById("veiculo");
-const placaInput = document.getElementById("placa");
-const statusMsg = document.getElementById("mensagemStatus");
-
-// ✅ [4] Função mostrar mensagem colorida
-function mostrarMensagem(texto, cor = "green") {
-  statusMsg.textContent = texto;
-  statusMsg.style.color = cor;
+// === Função para exibir mensagens de status ===
+function exibirMensagem(texto, erro = false) {
+  const msg = document.getElementById("mensagem");
+  msg.innerText = texto;
+  msg.style.color = erro ? "red" : "green";
 }
 
-// ✅ [5] Evento de envio do formulário
-form.addEventListener("submit", async (e) => {
-  e.preventDefault();
+// === Botões ===
+const botaoPassageiro = document.getElementById("cadastrarPassageiro");
+const botaoMotorista = document.getElementById("cadastrarMotorista");
 
-  const nome = nomeInput.value.trim();
-  const email = emailInput.value.trim();
-  const senha = senhaInput.value.trim();
-  const tipo = document.querySelector('input[name="tipo"]:checked')?.value;
-  const veiculo = veiculoInput.value.trim();
-  const placa = placaInput.value.trim();
+// === CADASTRAR PASSAGEIRO ===
+botaoPassageiro.addEventListener("click", async () => {
+  const nome = document.getElementById("nome").value;
+  const email = document.getElementById("email").value;
+  const senha = document.getElementById("senha").value;
 
-  if (!nome || !email || !senha || !tipo) {
-    mostrarMensagem("Preencha todos os campos!", "red");
+  if (!nome || !email || !senha) {
+    exibirMensagem("Preencha todos os campos!", true);
     return;
   }
 
   try {
-    // ✅ [6] Cria usuário no Firebase Auth
     const userCredential = await createUserWithEmailAndPassword(auth, email, senha);
-    const userId = userCredential.user.uid;
+    const user = userCredential.user;
 
-    // ✅ [7] Salva dados no Realtime Database
-    const userRef = ref(database, `usuarios/${userId}`);
-    const dadosUsuario = {
+    await updateProfile(user, { displayName: nome });
+
+    // Salvar dados no Realtime Database
+    await set(ref(database, `passageiros/${user.uid}`), {
       nome,
       email,
-      tipo,
-      ...(tipo === "motorista" && { veiculo, placa }),
-    };
-    await set(userRef, dadosUsuario);
+    });
 
-    mostrarMensagem("Cadastro efetuado com sucesso!", "green");
-
-    // ✅ [8] Força logout após cadastro
-    await signOut(auth);
+    exibirMensagem("Passageiro cadastrado com sucesso!");
+    auth.signOut(); // Desloga após cadastro
     setTimeout(() => {
       window.location.href = "login.html";
     }, 1500);
   } catch (error) {
-    console.error(error);
-    mostrarMensagem("Erro ao cadastrar: " + error.message, "red");
+    exibirMensagem("Erro ao cadastrar passageiro: " + error.message, true);
+  }
+});
+
+// === CADASTRAR MOTORISTA ===
+botaoMotorista.addEventListener("click", async () => {
+  const nome = document.getElementById("nome").value;
+  const email = document.getElementById("email").value;
+  const senha = document.getElementById("senha").value;
+  const veiculo = document.getElementById("veiculo").value;
+  const placa = document.getElementById("placa").value;
+
+  if (!nome || !email || !senha || !veiculo || !placa) {
+    exibirMensagem("Preencha todos os campos!", true);
+    return;
+  }
+
+  try {
+    const userCredential = await createUserWithEmailAndPassword(auth, email, senha);
+    const user = userCredential.user;
+
+    await updateProfile(user, { displayName: nome });
+
+    // Salvar dados no Realtime Database
+    await set(ref(database, `motoristas/${user.uid}`), {
+      nome,
+      email,
+      veiculo,
+      placa,
+    });
+
+    exibirMensagem("Motorista cadastrado com sucesso!");
+    auth.signOut(); // Desloga após cadastro
+    setTimeout(() => {
+      window.location.href = "login.html";
+    }, 1500);
+  } catch (error) {
+    exibirMensagem("Erro ao cadastrar motorista: " + error.message, true);
   }
 });

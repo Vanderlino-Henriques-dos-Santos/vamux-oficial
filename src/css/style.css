@@ -448,3 +448,74 @@ input:focus, select:focus {
     height: auto;
     object-fit: contain;
 }
+/* Botão verde - Finalizar Corrida */
+.btn-verde {
+  background-color: #00a859;
+  color: white;
+  padding: 12px 20px;
+  font-size: 16px;
+  border: none;
+  border-radius: 10px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.btn-verde:hover {
+  background-color: #008c4a;
+}
+
+/* === [10] RADIO GROUP PARA TIPO DE USUÁRIO === */
+.radio-group {
+  display: flex;
+  justify-content: center;
+  gap: 30px;
+  margin: 20px 0;
+}
+
+.radio-group label {
+  font-weight: bold;
+  color: #333;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+}
+.info-box {
+  background-color: #f8f9fa;
+  border-radius: 12px;
+  padding: 16px;
+  margin-top: 16px;
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
+  font-size: 15px;
+  line-height: 1.6;
+  color: #333;
+  width: 100%;
+  max-width: 400px;
+  text-align: left;
+}
+.map-box {
+  width: 100%;
+  height: 400px; /* ou 100vh para tela cheia */
+  background-color: #f5f5f5;
+}
+.mensagem {
+  margin-top: 20px;
+  padding: 12px;
+  border-radius: 8px;
+  text-align: center;
+  font-weight: bold;
+  font-size: 16px;
+}
+
+.mensagem.sucesso {
+  background-color: #e0f7e9;
+  color: #2e7d32;
+  border: 1px solid #a5d6a7;
+}
+
+.mensagem.erro {
+  background-color: #ffebee;
+  color: #c62828;
+  border: 1px solid #ef9a9a;
+}

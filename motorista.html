@@ -1,33 +1,30 @@
-<!-- motorista.html -->
+<!-- BLOCO 01: ESTRUTURA BÁSICA -->
 <!DOCTYPE html>
 <html lang="pt-BR">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Motorista - VAMUX</title>
-        <link rel="stylesheet" href="/src/css/style.css">
-    </head>
-    <body>
-        <div class="container">
-            <header>
-                <img src="/public/imagens/logo/logo.jpg" alt="Logo VAMUX" class="logo">
-                <h1 class="gradient-text">Área do Motorista</h1>
-            </header>
-            <main>
-                <!-- Botão para ficar online -->
-                <button id="btnFicarOnline" class="btn">Ficar Online</button>
-                <!-- Mensagem de status -->
-                <div id="statusCorrida" class="mensagem-status">Aguardando ação...</div>
-                <!-- Informações da corrida -->
-                <div id="infoCorrida" class="info-box"></div>
-                <!-- Botões para aceitar e finalizar -->
-                <button id="btnAceitarCorrida" class="btn" style="display: none;">Aceitar Corrida</button>
-                <button id="btnFinalizarCorrida" class="btn red" style="display: none;">Finalizar Corrida</button>
-                <!-- Mapa -->
-                <div id="mapa" style="width: 100%; height: 400px; margin-top: 20px; border-radius: 10px; background: #eee;"></div>
-            </main>
-        </div>
-        <!-- Importação do JS via Vite -->
-        <script type="module" src="/src/javascript/motorista.js" defer></script>
-    </body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Área do Motorista - VAMUX</title>
+    <link rel="stylesheet" href="/src/css/style.css" />
+  </head>
+  <body>
+    <!-- BLOCO 02: CONTAINER PRINCIPAL -->
+    <div class="container">
+      <img src="/public/imagens/logo/logo.png" alt="Logo VAMUX" class="logo" />
+      <h1><span class="gradiente">Área do Motorista</span></h1>
+      <p><strong>Status da Corrida</strong></p>
+
+      <!-- BLOCO 03: BOTÃO FICAR ONLINE -->
+      <button id="btnFicarOnline">Ficar Online</button>
+
+      <!-- BLOCO 04: ÁREA DE MENSAGEM / CORRIDA -->
+      <div id="infoCorrida" class="mensagem" style="margin-top: 20px;"></div>
+
+      <!-- BLOCO 05: MAPA -->
+      <div id="mapa" style="height: 300px; margin-top: 20px;"></div>
+    </div>
+
+    <!-- BLOCO 06: SCRIPT -->
+    <script type="module" src="/src/javascript/motorista.js" defer></script>
+  </body>
 </html>

@@ -1,129 +1,144 @@
-// passageiro.js
-// =====================================
-// 1. IMPORTAÇÕES FIREBASE
-// =====================================
-import { getDatabase, ref, push, set } from "firebase/database";
-import { auth } from "./firebase-config.js";
-
-// =====================================
-// 2. VARIÁVEIS GLOBAIS
-// =====================================
-let mapa;
-let directionsService;
-let directionsRenderer;
-let partidaAutocomplete;
-let destinoAutocomplete;
-
-// =====================================
-// 3. FUNÇÃO PARA CARREGAR GOOGLE MAPS VIA SCRIPT EXTERNO
-// =====================================
+// === BLOCO 00: CARREGAMENTO DO GOOGLE MAPS COM VARIÁVEL SEGURA ===
 function carregarGoogleMaps() {
   const script = document.createElement("script");
-  script.src = `https://maps.googleapis.com/maps/api/js?key=${import.meta.env.VITE_GOOGLE_MAPS_API_KEY}&callback=initMap&libraries=places`;
+  script.src = `https://maps.googleapis.com/maps/api/js?key=${import.meta.env.VITE_GOOGLE_MAPS_API_KEY}&libraries=places&callback=initMap`;
   script.async = true;
   script.defer = true;
   document.head.appendChild(script);
 }
 
-// =====================================
-// 4. FUNÇÃO PRINCIPAL PARA INICIAR O MAPA
-// =====================================
+carregarGoogleMaps();
+
+// === BLOCO 01: IMPORTAÇÕES FIREBASE ===
+import { getAuth, onAuthStateChanged } from "firebase/auth";
+import {
+  getDatabase,
+  ref,
+  push,
+  serverTimestamp
+} from "firebase/database";
+import { app } from "./firebase-config.js";
+
+// === BLOCO 02: VARIÁVEIS GLOBAIS ===
+const auth = getAuth(app);
+const database = getDatabase(app);
+let map, directionsService, directionsRenderer;
+let origemLatLng = null;
+let destinoLatLng = null;
+let enderecoOrigem = "";
+let enderecoDestino = "";
+
+// === BLOCO 03: FUNÇÃO PARA MENSAGENS NA TELA ===
+function mostrarMensagem(texto, tipo = "sucesso") {
+  const mensagemEl = document.getElementById("mensagem");
+  if (!mensagemEl) return;
+  mensagemEl.innerHTML = texto;
+  mensagemEl.className = `mensagem ${tipo}`;
+}
+
+// === BLOCO 04: INICIALIZA MAPA + AUTOCOMPLETE ===
 window.initMap = () => {
-  mapa = new google.maps.Map(document.getElementById("mapa"), {
-    center: { lat: -23.5505, lng: -46.6333 }, // SP como padrão
+  map = new google.maps.Map(document.getElementById("mapa"), {
+    center: { lat: -23.5505, lng: -46.6333 },
     zoom: 13,
   });
 
   directionsService = new google.maps.DirectionsService();
   directionsRenderer = new google.maps.DirectionsRenderer();
-  directionsRenderer.setMap(mapa);
+  directionsRenderer.setMap(map);
 
-  const inputPartida = document.getElementById("partida");
+  const inputOrigem = document.getElementById("origem");
   const inputDestino = document.getElementById("destino");
 
-  partidaAutocomplete = new google.maps.places.Autocomplete(inputPartida);
-  destinoAutocomplete = new google.maps.places.Autocomplete(inputDestino);
+  if (inputOrigem && inputDestino) {
+    const autocompleteOrigem = new google.maps.places.Autocomplete(inputOrigem);
+    autocompleteOrigem.addListener("place_changed", () => {
+      const place = autocompleteOrigem.getPlace();
+      if (place.geometry) {
+        origemLatLng = place.geometry.location;
+        enderecoOrigem = place.formatted_address || inputOrigem.value;
+        inputOrigem.value = enderecoOrigem;
+      }
+    });
+
+    const autocompleteDestino = new google.maps.places.Autocomplete(inputDestino);
+    autocompleteDestino.addListener("place_changed", () => {
+      const place = autocompleteDestino.getPlace();
+      if (place.geometry) {
+        destinoLatLng = place.geometry.location;
+        enderecoDestino = place.formatted_address || inputDestino.value;
+        inputDestino.value = enderecoDestino;
+      }
+    });
+  }
 };
 
-// =====================================
-// 5. FUNÇÃO PARA CALCULAR ESTIMATIVA DE ROTA
-// =====================================
-function calcularEstimativa() {
-  const partida = document.getElementById("partida").value;
-  const destino = document.getElementById("destino").value;
-
-  if (!partida || !destino) {
-    exibirMensagem("Preencha os dois endereços.", "erro");
+// === BLOCO 05: ESTIMAR DISTÂNCIA E VALOR ===
+document.getElementById("btnEstimativa").addEventListener("click", () => {
+  if (!origemLatLng || !destinoLatLng) {
+    mostrarMensagem("❌ Preencha corretamente os endereços.", "erro");
     return;
   }
 
   const request = {
-    origin: partida,
-    destination: destino,
-    travelMode: google.maps.TravelMode.DRIVING,
+    origin: origemLatLng,
+    destination: destinoLatLng,
+    travelMode: "DRIVING",
   };
 
   directionsService.route(request, (result, status) => {
     if (status === "OK") {
       directionsRenderer.setDirections(result);
 
-      const distanciaMetros = result.routes[0].legs[0].distance.value;
-      const duracaoMinutos = result.routes[0].legs[0].duration.value / 60;
-      const valorEstimado = (distanciaMetros / 1000) * 2.5; // R$2,50 por KM
+      const distanciaKm = result.routes[0].legs[0].distance.value / 1000;
+      const duracaoMin = result.routes[0].legs[0].duration.value / 60;
+      const valorEstimado = (distanciaKm * 2.5).toFixed(2);
 
-      exibirMensagem(
-        `Distância: ${(distanciaMetros / 1000).toFixed(2)} km<br>Tempo: ${Math.round(duracaoMinutos)} min<br>Valor estimado: R$ ${valorEstimado.toFixed(2)}`,
+      mostrarMensagem(
+        `📍 <strong>Distância:</strong> ${distanciaKm.toFixed(2)} km<br>
+         ⏱️ <strong>Duração:</strong> ${duracaoMin.toFixed(0)} min<br>
+         💰 <strong>Valor estimado:</strong> R$ ${valorEstimado}`,
         "sucesso"
       );
-
-      salvarCorrida(partida, destino, distanciaMetros, duracaoMinutos, valorEstimado);
     } else {
-      exibirMensagem("Erro ao calcular rota: " + status, "erro");
+      mostrarMensagem("❌ Erro ao calcular rota. Tente novamente.", "erro");
     }
   });
-}
+});
 
-// =====================================
-// 6. FUNÇÃO PARA SALVAR DADOS NO FIREBASE
-// =====================================
-function salvarCorrida(partida, destino, distancia, duracao, valor) {
-  const user = auth.currentUser;
-  if (!user) {
-    exibirMensagem("Usuário não autenticado.", "erro");
-    return;
-  }
+// === BLOCO 06: CHAMAR CORRIDA ===
+document.getElementById("btnChamarCorrida").addEventListener("click", () => {
+  onAuthStateChanged(auth, (user) => {
+    if (!user) {
+      mostrarMensagem("❌ Você precisa estar logado para solicitar uma corrida.", "erro");
+      return;
+    }
 
-  const database = getDatabase();
-  const corridasRef = ref(database, "corridas");
-  const novaCorridaRef = push(corridasRef);
+    const passageiroEmail = user.email || "não identificado";
 
-  set(novaCorridaRef, {
-    passageiro: user.uid,
-    partida,
-    destino,
-    distancia,
-    duracao,
-    valor,
-    status: "pendente",
-    timestamp: Date.now(),
+    if (!origemLatLng || !destinoLatLng) {
+      mostrarMensagem("❌ Preencha todos os dados da corrida antes de continuar.", "erro");
+      return;
+    }
+
+    const corridaRef = ref(database, "corridas");
+
+    push(corridaRef, {
+      passageiro: passageiroEmail,
+      origem: {
+        lat: origemLatLng.lat(),
+        lng: origemLatLng.lng(),
+        endereco: enderecoOrigem || document.getElementById("origem").value,
+      },
+      destino: {
+        lat: destinoLatLng.lat(),
+        lng: destinoLatLng.lng(),
+        endereco: enderecoDestino || document.getElementById("destino").value,
+      },
+      status: "pendente",
+      timestamp: serverTimestamp(),
+    });
+
+    mostrarMensagem("🚗 Corrida solicitada com sucesso!", "sucesso");
   });
-}
-
-// =====================================
-// 7. FUNÇÃO PARA EXIBIR MENSAGENS
-// =====================================
-function exibirMensagem(texto, tipo) {
-  const msgDiv = document.querySelector(".mensagem-status");
-  msgDiv.innerHTML = texto;
-  msgDiv.style.color = tipo === "erro" ? "red" : "green";
-}
-
-// =====================================
-// 8. EVENTO DE CLIQUE NO BOTÃO ESTIMATIVA
-// =====================================
-document.getElementById("btnEstimativa").addEventListener("click", calcularEstimativa);
-
-// =====================================
-// 9. INICIAR GOOGLE MAPS AO CARREGAR
-// =====================================
-carregarGoogleMaps();
+});

@@ -1,36 +1,33 @@
-<!-- /passageiro.html -->
+<!-- BLOCO 01: ESTRUTURA BÁSICA -->
 <!DOCTYPE html>
 <html lang="pt-BR">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Painel do Passageiro - VAMUX</title>
-  <link rel="stylesheet" href="/src/css/style.css" />
-  <link rel="icon" href="/public/imagens/logo/favicon.png" type="image/png" />
-</head>
-<body>
-  <div class="container">
-    <!-- LOGO -->
-    <img src="/public/imagens/logo/logo.jpg" alt="Logo VAMUX" class="logo" />
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Área do Passageiro - VAMUX</title>
+    <link rel="stylesheet" href="/src/css/style.css" />
+  </head>
+  <body>
+    <!-- BLOCO 02: CONTAINER PRINCIPAL -->
+    <div class="container">
+      <img src="/public/imagens/logo/logo.png" alt="Logo VAMUX" class="logo" />
+      <h1><span class="gradiente">Área do Passageiro</span></h1>
+      <p><strong>Solicite sua corrida</strong></p>
 
-    <!-- TÍTULO -->
-    <h1 class="gradient-text">Área do Passageiro</h1>
+      <!-- BLOCO 03: FORMULÁRIO DE ENDEREÇOS -->
+      <input id="origem" type="text" placeholder="Endereço de Partida" />
+      <input id="destino" type="text" placeholder="Destino" />
+      <button id="btnEstimativa">Calcular Estimativa</button>
+      <button id="btnChamarCorrida">Chamar Corrida</button>
 
-    <!-- FORMULÁRIO -->
-    <input type="text" id="partida" placeholder="Endereço de partida" />
-    <input type="text" id="destino" placeholder="Endereço de destino" />
-    <button id="btnEstimativa" class="btn">Calcular Estimativa</button>
+      <!-- BLOCO 04: ÁREA DE MENSAGEM -->
+      <div id="mensagem" class="mensagem"></div>
 
-    <!-- MENSAGEM DE STATUS -->
-    <div class="mensagem-status"></div>
+      <!-- BLOCO 05: MAPA -->
+      <div id="mapa" style="height: 300px; margin-top: 20px;"></div>
+    </div>
 
-    <!-- MAPA -->
-    <div id="mapa" style="width: 100%; height: 400px; margin-top: 20px; border-radius: 12px; background-color: #eee;"></div>
-
-    
-  </div>
-
-  <!-- SCRIPT JAVASCRIPT -->
-  <script type="module" src="/src/javascript/passageiro.js" defer></script>
-</body>
+    <!-- BLOCO 06: SCRIPT -->
+    <script type="module" src="/src/javascript/passageiro.js" defer></script>
+  </body>
 </html>

@@ -1,164 +1,136 @@
-// ==========================================
-// 🟣 VAMUX - motorista.js
-// 🎯 Funções: ficar online, escutar corrida, aceitar, traçar rota, finalizar, detectar cancelamento
-// ==========================================
+// === BLOCO 00: CARREGAMENTO DO GOOGLE MAPS COM VARIÁVEL SEGURA (.env) ===
+function carregarGoogleMaps() {
+  const script = document.createElement("script");
+  script.src = `https://maps.googleapis.com/maps/api/js?key=${import.meta.env.VITE_GOOGLE_MAPS_API_KEY}&libraries=places&callback=initMap`;
+  script.async = true;
+  script.defer = true;
+  document.head.appendChild(script);
+}
 
-/* [1] IMPORTS E INICIALIZAÇÕES */
-import { initializeApp } from "firebase/app";
+carregarGoogleMaps();
+
+// === BLOCO 01: IMPORTAÇÕES DO FIREBASE ===
+import { getAuth, onAuthStateChanged } from "firebase/auth";
 import {
   getDatabase,
   ref,
-  onValue,
-  update,
+  onChildAdded,
+  update
 } from "firebase/database";
-import { getAuth, onAuthStateChanged } from "firebase/auth";
-import { firebaseConfig } from "./firebase-config.js";
+import { app } from "./firebase-config.js";
 
-// Firebase
-const app = initializeApp(firebaseConfig);
-const database = getDatabase(app);
+// === BLOCO 02: VARIÁVEIS GLOBAIS ===
 const auth = getAuth(app);
-
-// Variáveis globais
+const database = getDatabase(app);
 let map, directionsService, directionsRenderer;
-let idCorridaAtual = null;
+let motoristaOnline = false;
+let motoristaEmail = null;
+let corridaAtualId = null;
 
-/* [2] INICIAR MAPA */
+// === BLOCO 03: MENSAGENS NA TELA ===
+function mostrarMensagem(texto, tipo = "sucesso") {
+  const info = document.getElementById("infoCorrida");
+  if (!info) return;
+  info.innerHTML = texto;
+  info.className = `mensagem ${tipo}`;
+}
+
+// === BLOCO 04: INICIALIZA O MAPA ===
 window.initMap = () => {
-  directionsService = new google.maps.DirectionsService();
-  directionsRenderer = new google.maps.DirectionsRenderer();
-
   map = new google.maps.Map(document.getElementById("mapa"), {
-    center: { lat: -23.55052, lng: -46.633308 },
+    center: { lat: -23.5505, lng: -46.6333 },
     zoom: 13,
   });
 
+  directionsService = new google.maps.DirectionsService();
+  directionsRenderer = new google.maps.DirectionsRenderer();
   directionsRenderer.setMap(map);
 };
 
-/* [3] CLIQUE EM "FICAR ONLINE" */
-document.getElementById("btnOnline").addEventListener("click", () => {
-  mostrarStatus("Você está online e aguardando corridas...");
-  escutarCorridasPendentes();
+// === BLOCO 05: BOTÃO FICAR ONLINE ===
+document.getElementById("btnFicarOnline").addEventListener("click", () => {
+  motoristaOnline = true;
+  mostrarMensagem("🟢 Aguardando corridas pendentes...", "sucesso");
+  escutarCorridas();
 });
 
-/* [4] ESCUTAR CORRIDAS PENDENTES */
-function escutarCorridasPendentes() {
+// === BLOCO 06: ESCUTAR CORRIDAS PENDENTES ===
+function escutarCorridas() {
   const corridasRef = ref(database, "corridas");
 
-  onValue(corridasRef, (snapshot) => {
-    const data = snapshot.val();
-    if (!data) return;
-
-    const corridas = Object.entries(data);
-    const agora = Date.now();
-
-    const pendenteRecente = corridas.find(([id, corrida]) =>
-      corrida.status === "pendente" &&
-      new Date(corrida.timestamp).getTime() > (agora - 10 * 60000) // últimos 10min
-    );
-
-    if (pendenteRecente) {
-      const [id, corrida] = pendenteRecente;
-      exibirCorrida(id, corrida);
-    }
-  });
-}
-
-/* [5] EXIBIR CORRIDA NA TELA DO MOTORISTA */
-function exibirCorrida(id, dados) {
-  idCorridaAtual = id;
-  document.getElementById("info").innerHTML = `
-    <p><strong>Passageiro:</strong> ${dados.nomePassageiro}</p>
-    <p><strong>Origem:</strong> ${dados.origem}</p>
-    <p><strong>Destino:</strong> ${dados.destino}</p>
-    <button id="aceitarBtn" class="btn">Aceitar Corrida</button>
-  `;
-
-  document.getElementById("aceitarBtn").addEventListener("click", () => {
-    aceitarCorrida(id, dados.origem);
-  });
-}
-
-/* [6] ACEITAR CORRIDA E TRAÇAR ROTA */
-function aceitarCorrida(id, enderecoPartida) {
-  onAuthStateChanged(auth, (user) => {
-    if (user) {
-      const motoristaRef = ref(database, `corridas/${id}`);
-      update(motoristaRef, {
-        status: "aceita",
-        motoristaId: user.uid,
-        nomeMotorista: user.displayName || "Motorista",
-        veiculo: "Sedan",
-        placa: "ABC-1234"
-      });
-
-      mostrarStatus("Corrida aceita! Rota traçada até o passageiro.");
-      traçarRota(enderecoPartida);
-      escutarCancelamento(id);
-      exibirBotaoFinalizar();
-    }
-  });
-}
-
-/* [7] TRAÇAR ROTA ATÉ O PASSAGEIRO */
-function traçarRota(enderecoPartida) {
-  directionsService.route({
-    origin: "Sua localização atual", // opcional: capturar GPS real
-    destination: enderecoPartida,
-    travelMode: google.maps.TravelMode.DRIVING
-  }, (res, status) => {
-    if (status === "OK") {
-      directionsRenderer.setDirections(res);
-    }
-  });
-}
-
-/* [8] ESCUTAR CANCELAMENTO PELO PASSAGEIRO */
-function escutarCancelamento(idCorrida) {
-  const refCorrida = ref(database, `corridas/${idCorrida}`);
-
-  onValue(refCorrida, (snapshot) => {
+  onChildAdded(corridasRef, (snapshot) => {
     const dados = snapshot.val();
-    if (!dados) return;
+    const corridaId = snapshot.key;
 
-    if (dados.status === "cancelada") {
-      mostrarStatus("Corrida cancelada pelo passageiro. Você receberá taxa de cancelamento.");
-      resetPainel();
-    }
+    // Só aceita se for nova e ainda não tiver corrida em andamento
+    if (dados.status === "pendente" && motoristaOnline && !corridaAtualId) {
+      corridaAtualId = corridaId;
 
-    if (dados.status === "finalizada") {
-      mostrarStatus("Corrida finalizada com sucesso.");
-      resetPainel();
+      const origem = { lat: dados.origem.lat, lng: dados.origem.lng };
+      const destino = { lat: dados.destino.lat, lng: dados.destino.lng };
+
+      // Mostrar info no painel
+      mostrarMensagem(
+        `📍 Corrida encontrada de <strong>${dados.origem.endereco || "origem desconhecida"}</strong> até <strong>${dados.destino.endereco || "destino desconhecido"}</strong><br>
+         🧍 Passageiro: ${dados.passageiro || "não identificado"}<br><br>
+         <button id="btnFinalizarCorrida">Finalizar Corrida</button>`,
+        "sucesso"
+      );
+
+      // Traçar rota
+      directionsService.route(
+        {
+          origin: origem,
+          destination: destino,
+          travelMode: "DRIVING",
+        },
+        (result, status) => {
+          if (status === "OK") {
+            directionsRenderer.setDirections(result);
+
+            // Atualiza status para "aceita"
+            update(ref(database, `corridas/${corridaId}`), {
+              status: "aceita",
+              motorista: motoristaEmail || "Motorista VAMUX",
+            });
+
+            motoristaOnline = false; // Evita pegar outras corridas
+          } else {
+            mostrarMensagem("❌ Erro ao traçar rota.", "erro");
+          }
+        }
+      );
+
+      // Espera botão ser criado no DOM para adicionar evento
+      setTimeout(() => {
+        const btnFinalizar = document.getElementById("btnFinalizarCorrida");
+        if (btnFinalizar) {
+          btnFinalizar.addEventListener("click", () => finalizarCorrida(corridaId));
+        }
+      }, 500);
     }
   });
 }
 
-/* [9] EXIBIR BOTÃO FINALIZAR */
-function exibirBotaoFinalizar() {
-  document.getElementById("finalizarBtn").style.display = "inline-block";
+// === BLOCO 07: FINALIZAR CORRIDA ===
+function finalizarCorrida(corridaId) {
+  if (!corridaId) return;
 
-  document.getElementById("finalizarBtn").addEventListener("click", () => {
-    const corridaRef = ref(database, `corridas/${idCorridaAtual}`);
-    update(corridaRef, {
-      status: "finalizada"
-    });
-    mostrarStatus("Corrida finalizada.");
-    resetPainel();
+  update(ref(database, `corridas/${corridaId}`), {
+    status: "finalizada",
   });
-}
 
-/* [10] MOSTRAR MENSAGEM DE STATUS */
-function mostrarStatus(mensagem) {
-  const statusDiv = document.getElementById("mensagemStatus");
-  statusDiv.innerText = mensagem;
-  statusDiv.style.color = mensagem.includes("cancelada") ? "red" : "green";
+  mostrarMensagem("✅ Corrida finalizada com sucesso! Aguardando nova chamada...", "sucesso");
+  directionsRenderer.setDirections({ routes: [] }); // limpa rota
+  corridaAtualId = null;
+  motoristaOnline = true; // volta a escutar novas
 }
-
-/* [11] RESET VISUAL DO PAINEL */
-function resetPainel() {
-  document.getElementById("info").innerHTML = "";
-  document.getElementById("finalizarBtn").style.display = "none";
-  directionsRenderer.set('directions', null);
-  idCorridaAtual = null;
-}
+ 
+// === BLOCO 08: VERIFICAR LOGIN ===
+onAuthStateChanged(auth, (user) => {
+  if (user) {
+    motoristaEmail = user.email;
+  } else {
+    mostrarMensagem("❌ Você precisa estar logado para aceitar corridas.", "erro");
+  }
+});

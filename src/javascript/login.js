@@ -1,67 +1,48 @@
-// ================================
-// 🟣 VAMUX - login.js
-// 📥 Login de usuário com redirecionamento
-// ================================
+// src/javascript/login.js
+// === LOGIN DE USUÁRIO VAMUX ===
+// Verifica credenciais e redireciona para painel de passageiro ou motorista conforme cadastro.
 
-// ✅ [1] Importações Firebase
-import { initializeApp } from "firebase/app";
-import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
-import { getDatabase, ref, get } from "firebase/database";
-import { firebaseConfig } from "./firebase-config.js";
+import { auth, database } from "./firebase-config.js";
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { ref, get } from "firebase/database";
 
-// ✅ [2] Inicialização Firebase
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const database = getDatabase(app);
+// === BOTÃO DE LOGIN ===
+const botaoLogin = document.getElementById("login");
 
-// ✅ [3] Elementos do DOM
-const form = document.getElementById("formLogin");
-const emailInput = document.getElementById("email");
-const senhaInput = document.getElementById("senha");
-const mensagemStatus = document.getElementById("mensagemStatus");
-
-// ✅ [4] Função mostrar mensagem colorida
-function mostrarMensagem(texto, cor = "red") {
-  mensagemStatus.textContent = texto;
-  mensagemStatus.style.color = cor;
-}
-
-// ✅ [5] Evento de login
-form.addEventListener("submit", async (e) => {
-  e.preventDefault();
-
-  const email = emailInput.value.trim();
-  const senha = senhaInput.value.trim();
+botaoLogin.addEventListener("click", async () => {
+  const email = document.getElementById("email").value;
+  const senha = document.getElementById("senha").value;
 
   if (!email || !senha) {
-    mostrarMensagem("Preencha todos os campos!", "red");
+    alert("Preencha todos os campos!");
     return;
   }
 
   try {
     const userCredential = await signInWithEmailAndPassword(auth, email, senha);
-    const userId = userCredential.user.uid;
+    const user = userCredential.user;
 
-    // ✅ [6] Verifica tipo de usuário no banco
-    const userRef = ref(database, `usuarios/${userId}`);
-    const snapshot = await get(userRef);
+    // Verifica se é passageiro
+    const passageiroRef = ref(database, `passageiros/${user.uid}`);
+    const passageiroSnap = await get(passageiroRef);
 
-    if (!snapshot.exists()) {
-      mostrarMensagem("Usuário não encontrado!", "red");
+    if (passageiroSnap.exists()) {
+      window.location.href = "passageiro.html";
       return;
     }
 
-    const tipo = snapshot.val().tipo;
+    // Verifica se é motorista
+    const motoristaRef = ref(database, `motoristas/${user.uid}`);
+    const motoristaSnap = await get(motoristaRef);
 
-    if (tipo === "passageiro") {
-      window.location.href = "passageiro.html";
-    } else if (tipo === "motorista") {
+    if (motoristaSnap.exists()) {
       window.location.href = "motorista.html";
-    } else {
-      mostrarMensagem("Tipo de usuário inválido!", "red");
+      return;
     }
+
+    // Se não encontrou nenhum perfil
+    alert("Perfil não encontrado. Cadastre-se novamente.");
   } catch (error) {
-    console.error(error);
-    mostrarMensagem("Erro ao fazer login: " + error.message, "red");
+    alert("Erro ao fazer login: " + error.message);
   }
 });
