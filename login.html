@@ -1,30 +1,36 @@
+<!--
+  Arquivo: login.html
+  Função: Tela de login de usuários do VAMUX
+  Caminhos ajustados para VITE + Firebase
+-->
+
 <!DOCTYPE html>
 <html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Login - VAMUX</title>
-    <link rel="stylesheet" href="/src/css/style.css" />
+    <link rel="stylesheet" href="css/style.css" />
   </head>
   <body>
     <div class="container">
-      <!-- Logo -->
-      <img src="public/imagens/logo/logo.jpg" alt="Logo VAMUX" class="logo" />
+      <img src="public/imagens/logo/logo.jpeg" alt="Logo VAMUX" class="logo" />
+      <h1 class="gradient-text">Entrar no VAMUX</h1>
 
-      <!-- Título -->
-      <h1 class="gradient-text">Acesse sua conta</h1>
+      <form id="formLogin">
+        <input type="email" id="email" placeholder="E-mail" required />
+        <input type="password" id="senha" placeholder="Senha" required />
+        <button type="submit" class="btn" id="btn-entrar">Entrar</button>
+      </form>
 
-      <!-- Formulário de login -->
-      <input type="email" id="email" placeholder="E-mail" class="campo" />
-      <input type="password" id="senha" placeholder="Senha" class="campo" />
+      <p id="mensagemStatus"></p>
 
-      <!-- Botão -->
-      <button id="login" class="botao">Entrar</button>
-
-      <!-- Link para cadastro -->
-      <p style="margin-top: 20px;">Ainda não tem conta? <a href="cadastro.html">Cadastre-se</a></p>
+      <p style="margin-top: 10px">
+        Ainda não tem conta? <a href="cadastro.html">Cadastre-se</a>
+      </p>
     </div>
 
-    <script type="module" src="/src/javascript/login.js" defer></script>
+    <!-- Script de login com Firebase -->
+    <script type="module" src="src/js/login.js" defer></script>
   </body>
 </html>

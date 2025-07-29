@@ -1,0 +1,51 @@
+<!-- cadastro-passageiro.html - Página de cadastro de passageiro no VAMUX -->
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Cadastro de Passageiro - VAMUX</title>
+    <link rel="stylesheet" href="/css/style.css" />
+    <link rel="icon" href="/src/assets/imagens/logo.jpeg" type="image/jpeg" />
+  </head>
+
+  <body>
+    <div class="container">
+      <!-- Logo do VAMUX -->
+      <img src="/imagens/logo/logo.jpeg
+      " alt="Logo VAMUX" class="logo" />
+
+      <!-- Título -->
+      <h1 class="gradiente">Cadastro de Passageiro</h1>
+
+      <!-- Formulário -->
+      <form id="formCadastro">
+        <label for="nome">Nome Completo</label>
+        <input id="nome" type="text" placeholder="Seu nome" required />
+
+        <label for="email">E-mail</label>
+        <input id="email" type="email" placeholder="seu@email.com" required />
+
+        <label for="senha">Senha</label>
+        <input id="senha" type="password" placeholder="Mínimo 6 caracteres" required />
+
+        <label for="confirmarSenha">Confirmar Senha</label>
+        <input id="confirmarSenha" type="password" placeholder="Confirme sua senha" required />
+
+        <button type="submit" id="btnCadastro">Cadastrar</button>
+      </form>
+
+      <!-- Área de mensagem -->
+      <div id="mensagem" class="mensagem"></div>
+
+      <!-- Link para login -->
+      <p style="margin-top: 20px;">
+        Já tem uma conta?
+        <a href="/login.html" class="link-conta">Faça login aqui.</a>
+      </p>
+    </div>
+
+    <!-- Script do cadastro -->
+    <script type="module" src="/src/js/cadastroPassageiro.js" defer></script>
+  </body>
+</html>

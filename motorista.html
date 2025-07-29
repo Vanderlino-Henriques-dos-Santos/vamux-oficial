@@ -1,30 +1,44 @@
-<!-- BLOCO 01: ESTRUTURA BÁSICA -->
+<!--
+  Arquivo: motorista.html
+  Função: Painel do motorista com dados, mapa e escuta de corridas no VAMUX
+-->
+
 <!DOCTYPE html>
 <html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Área do Motorista - VAMUX</title>
-    <link rel="stylesheet" href="/src/css/style.css" />
+    <title>Painel do Motorista - VAMUX</title>
+    <link rel="stylesheet" href="/css/style.css" />
+    <link rel="icon" href="/public/imagens/logo/favicon.png" />
   </head>
   <body>
-    <!-- BLOCO 02: CONTAINER PRINCIPAL -->
     <div class="container">
-      <img src="/public/imagens/logo/logo.png" alt="Logo VAMUX" class="logo" />
-      <h1><span class="gradiente">Área do Motorista</span></h1>
-      <p><strong>Status da Corrida</strong></p>
+      <!-- LOGO -->
+      <img src="/public/imagens/logo/logo.jpeg" alt="Logo VAMUX" class="logo" />
 
-      <!-- BLOCO 03: BOTÃO FICAR ONLINE -->
-      <button id="btnFicarOnline">Ficar Online</button>
+      <!-- TÍTULO -->
+      <h1 class="titulo-gradiente">Painel do Motorista</h1>
 
-      <!-- BLOCO 04: ÁREA DE MENSAGEM / CORRIDA -->
-      <div id="infoCorrida" class="mensagem" style="margin-top: 20px;"></div>
+      <!-- INFORMAÇÕES DO MOTORISTA -->
+      <div id="infoMotorista">
+        <p><strong>Motorista:</strong> <span id="nomeMotorista">Carregando...</span></p>
+        <p><strong>Veículo:</strong> <span id="modeloVeiculo">-</span></p>
+        <p><strong>Placa:</strong> <span id="placaVeiculo">-</span></p>
+      </div>
 
-      <!-- BLOCO 05: MAPA -->
-      <div id="mapa" style="height: 300px; margin-top: 20px;"></div>
+      <!-- BOTÕES -->
+      <button id="btnOnline" class="botao-roxo">Ficar Online</button>
+      <button id="btnSair" class="botao-roxo">Sair</button>
+
+      <!-- MAPA -->
+      <div id="mapa" style="width: 100%; height: 300px; border-radius: 12px; background-color: #eee; margin-top: 20px;"></div>
+
+      <!-- MENSAGEM DE STATUS -->
+      <div id="mensagem" class="mensagem-status"></div>
     </div>
 
-    <!-- BLOCO 06: SCRIPT -->
-    <script type="module" src="/src/javascript/motorista.js" defer></script>
+    <!-- SCRIPT PRINCIPAL -->
+    <script type="module" src="src/js/motorista.js" defer></script>
   </body>
 </html>

@@ -1,0 +1,39 @@
+<!-- recuperarSenha.html -->
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VAMUX - Recuperar Senha</title>
+  <link rel="stylesheet" href="/css/style.css" />
+  <link rel="icon" href="/src/assets/imagens/logo.jpeg" type="image/jpeg" />
+</head>
+<body>
+  <div class="container">
+    <header class="header">
+      <img src="public/imagens/logo/logo.jpeg" alt="Logo VAMUX" class="logo" />
+      <h1>Recuperar Senha</h1>
+      <p>Informe seu e-mail para receber um link de redefinição.</p>
+    </header>
+
+    <main class="main-content">
+      <form id="recuperarSenhaForm" class="form-container">
+        <div class="input-group">
+          <label for="emailRecuperacao">E-mail:</label>
+          <input type="email" id="emailRecuperacao" placeholder="seu@email.com" required />
+        </div>
+
+        <div id="mensagemRecuperacao" class="mensagem-erro" style="display: none;"></div>
+
+        <button type="submit" id="btnRecuperarSenha" class="btn primary-btn">
+          Enviar Link de Redefinição
+        </button>
+
+        <p style="margin-top: 20px;">Lembrou da senha? <a href="/login.html">Voltar para o Login</a></p>
+      </form>
+    </main>
+  </div>
+
+  <script type="module" src="/src/js/recuperarSenha.js" defer></script>
+</body>
+</html>

@@ -1,58 +1,67 @@
+<!--
+  Arquivo: cadastro.html
+  Função: Tela de cadastro de usuários no VAMUX (passageiro ou motorista)
+  Caminhos ajustados: CSS, imagem e JS
+-->
+
 <!DOCTYPE html>
 <html lang="pt-BR">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Cadastro - VAMUX</title>
-        <link rel="stylesheet" href="/src/css/style.css">
-    </head>
-    <body>
-        <div class="container">
-            <!-- Logo -->
-            <img src="/public/imagens/logo/logo-vamux.png" alt="Logo VAMUX" class="logo">
-            <!-- Título -->
-            <h1 class="gradient-text">Crie sua conta</h1>
-            <!-- Formulário -->
-            <input
-                type="text"
-                id="nome"
-                placeholder="Nome completo"
-                class="campo"
-            >
-            <input
-                type="email"
-                id="email"
-                placeholder="E-mail"
-                class="campo"
-            >
-            <input
-                type="password"
-                id="senha"
-                placeholder="Senha"
-                class="campo"
-            >
-            <!-- Campos adicionais para motoristas -->
-            <input
-                type="text"
-                id="veiculo"
-                placeholder="Veículo (somente motorista)"
-                class="campo"
-            >
-            <input
-                type="text"
-                id="placa"
-                placeholder="Placa do veículo"
-                class="campo"
-            >
-            <!-- Botões de cadastro -->
-            <button id="cadastrarPassageiro" class="botao">Cadastrar como Passageiro</button>
-            <button id="cadastrarMotorista" class="botao">Cadastrar como Motorista</button>
-            <div id="mensagem" style="margin-top: 20px; font-weight: bold;"></div>
-            <!-- Link para login -->
-            <p style="margin-top: 20px;">Já tem uma conta?
-                <a href="login.html">Entrar</a>
-            </p>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Cadastro - VAMUX</title>
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body>
+    <div class="container">
+      <img src="public/imagens/logo/logo.jpeg" alt="Logo VAMUX" class="logo" />
+      <h1 class="gradient-text">Crie sua Conta</h1>
+
+      <form id="formCadastro">
+        <input type="text" id="nome" placeholder="Nome completo" required />
+        <input type="email" id="email" placeholder="E-mail" required />
+        <input type="password" id="senha" placeholder="Senha" required />
+
+        <div class="radio-group">
+          <label>
+            <input type="radio" name="tipo" value="passageiro" checked />
+            Passageiro
+          </label>
+          <label>
+            <input type="radio" name="tipo" value="motorista" />
+            Motorista
+          </label>
         </div>
-        <script type="module" src="/src/javascript/cadastro.js" defer></script>
-    </body>
+
+        <div id="camposMotorista" style="display: none">
+          <input type="text" id="veiculo" placeholder="Modelo do veículo" />
+          <input type="text" id="placa" placeholder="Placa do veículo" />
+        </div>
+
+       <button id="btn-cadastrar" type="submit" class="btn">Cadastrar</button>
+
+      </form>
+
+      <p id="mensagemStatus"></p>
+      <p style="margin-top: 10px">
+        Já tem conta? <a href="login.html">Entrar</a>
+      </p>
+    </div>
+
+    <script type="module" defer>
+      // Exibe os campos de veículo se "motorista" for selecionado
+      const tipoRadios = document.querySelectorAll('input[name="tipo"]');
+      const camposMotorista = document.getElementById("camposMotorista");
+
+      tipoRadios.forEach((radio) => {
+        radio.addEventListener("change", () => {
+          camposMotorista.style.display =
+            radio.value === "motorista" ? "block" : "none";
+        });
+      });
+    </script>
+
+    <!-- ✅ Caminho correto do JS -->
+    <script type="module" src="src/js/cadastro.js" defer></script>
+  </body>
 </html>

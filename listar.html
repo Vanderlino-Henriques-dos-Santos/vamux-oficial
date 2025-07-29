@@ -1,0 +1,39 @@
+<!-- listarUsuarios.html - Página para visualizar os usuários cadastrados -->
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Usuários Cadastrados - VAMUX</title>
+    <link rel="stylesheet" href="/css/style.css" />
+    <link rel="icon" href="/src/assets/imagens/logo.jpeg" type="image/jpeg" />
+  </head>
+  <body>
+    <div class="container">
+      <img src="public/imagens/logo/logo.jpeg" alt="Logo VAMUX" class="logo" />
+      <h1><span class="gradiente">Usuários Cadastrados</span></h1>
+      <p><strong>Veja abaixo os usuários registrados no sistema:</strong></p>
+
+      <!-- TABELA DE USUÁRIOS -->
+      <table id="usuariosTable">
+        <thead>
+          <tr>
+            <th>Tipo</th>
+            <th>Nome</th>
+            <th>Email</th>
+            <th>Modelo</th>
+            <th>Placa</th>
+          </tr>
+        </thead>
+        <tbody id="usuariosBody">
+          <!-- Linhas inseridas dinamicamente via listarUsuarios.js -->
+        </tbody>
+      </table>
+
+      <!-- Botão de Voltar -->
+      <a href="/index.html" class="btn primary-btn" style="margin-top: 30px;">← Voltar ao Início</a>
+    </div>
+
+    <script type="module" src="/src/js/listarUsuarios.js" defer></script>
+  </body>
+</html>

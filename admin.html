@@ -4,25 +4,21 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Painel Admin - VAMUX</title>
-  <link rel="stylesheet" href="/src/css/style.css" />
+  <link rel="stylesheet" href="/css/style.css" />
 </head>
 <body>
-  <main class="container">
-    <header>
-      <img src="/public/imagens/logo/logo.jpg" alt="Logo VAMUX" class="logo" />
-      <h1 class="gradient-text">Painel de Administração</h1>
-    </header>
+  <div class="container">
+    <img src="/public/imagens/logo/logo.jpeg" alt="Logo VAMUX" class="logo" />
+    <h1 class="gradient-text">Painel Administrativo</h1>
+    <p>Revisar e aprovar cadastros de motoristas</p>
 
-    <!-- Tabela de verificações -->
-    <section id="painelVerificacoes">
-      <p class="gradient-text">Carregando verificações...</p>
-    </section>
+    <div id="lista-motoristas" class="motoristas-container">
+      <!-- Lista dinâmica de motoristas -->
+    </div>
 
-    <footer>
-      <p class="gradient-text">© 2025 VAMUX - Todos os direitos reservados.</p>
-    </footer>
-  </main>
+    <p id="mensagem"></p>
+  </div>
 
-  <script type="module" src="/src/javascript/admin.js" defer></script>
+  <script type="module" src="/src/js/admin.js" defer></script>
 </body>
 </html>
