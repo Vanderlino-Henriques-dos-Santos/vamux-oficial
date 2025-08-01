@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16
+    container_name: vamux-postgres
+    restart: always
+    environment:
+      POSTGRES_USER: vamux_user
+      POSTGRES_PASSWORD: vamux@181122
+      POSTGRES_DB: vamux_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - vamux_data:/var/lib/postgresql/data
+
+volumes:
+  vamux_data:
+    driver: local
