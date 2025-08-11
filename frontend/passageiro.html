@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-1.0">
+    <title>Área do Passageiro - VAMUX</title>
+    <link rel="stylesheet" href="css/style.css">
+    
+    <script src="https://maps.googleapis.com/maps/api/js?libraries=places,geometry,distance_matrix&callback=initMap" defer></script>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <img src="imagens/logo.jpeg" alt="Logo VAMUX">
+            <h1>Área do Passageiro</h1>
+        </div>
+        
+        <div id="map-container">
+            <div id="map"></div>
+        </div>
+
+        <div class="form-container">
+            <div class="input-group">
+                <label for="origem">Origem:</label>
+                <input type="text" id="origem" placeholder="Local de partida">
+            </div>
+
+            <div class="input-group">
+                <label for="destino">Destino:</label>
+                <input type="text" id="destino" placeholder="Digite o destino">
+            </div>
+
+            <div class="botoes-container">
+                <button id="btnCalcular">Calcular Estimativa</button>
+                <button id="btnChamar">Chamar Corrida</button>
+            </div>
+            
+            <p id="estimativa"></p>
+        </div>
+    </div>
+    
+    <script src="src/js/passageiro.js" type="module"></script>
+</body>
+</html>
