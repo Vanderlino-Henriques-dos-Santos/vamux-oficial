@@ -7,14 +7,10 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-# Build
 node_modules
 dist
 dist-ssr
 *.local
-
-# Variáveis de ambiente (segurança)
-.env
 
 # Editor directories and files
 .vscode/*
@@ -26,4 +22,19 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
-/api/.env
+
+# Diretório de dependências do Node.js
+# Contém todas as bibliotecas que o 'npm install' instala.
+/node_modules
+
+# Variáveis de ambiente
+# Crucial para a segurança! Impede que suas chaves de API sejam enviadas.
+.env
+
+# Diretório de build do Vite
+# Contém os arquivos otimizados para produção.
+/dist
+
+# Cache e logs do npm
+npm-debug.log*
+.npm

@@ -1,7 +1,7 @@
 {
   "name": "vamux",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -9,16 +9,21 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@googlemaps/js-api-loader": "^1.16.10",
     "firebase": "^12.1.0",
     "sweetalert2": "^11.22.3"
   },
   "devDependencies": {
-    "concurrently": "^8.2.2",
     "vite": "^5.0.8"
   },
-  "description": "This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.",
-  "main": "eslint.config.js",
-  "keywords": [],
-  "author": "",
+  "description": "Projeto VAMUX - Aplicativo de Mobilidade Urbana.",
+  "main": "frontend/login.html",
+  "keywords": [
+    "mobilidade",
+    "urbana",
+    "firebase",
+    "vite"
+  ],
+  "author": "VAMUX Team",
   "license": "ISC"
 }

@@ -1,15 +1,12 @@
-VAMUX
-├── assets
-├── css
-├── javascript
-├── index.html
-├── login.html
-├── cadastro.html
-├── passageiro.html
-├── motorista.html
-├── sobre.html
-└── README.md
-# 🚀 Como configurar
-1. Crie um arquivo chamado `firebase-config.js` dentro da pasta `/javascript`.
-2. Copie o conteúdo de `firebase-config-example.js`.
-3. Preencha com suas credenciais do Firebase.
+# React + Vite
+
+This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+
+Currently, two official plugins are available:
+
+- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
+- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+
+## Expanding the ESLint configuration
+
+If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.

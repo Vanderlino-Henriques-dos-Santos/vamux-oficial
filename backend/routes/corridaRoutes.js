@@ -1,24 +1,21 @@
-// === [BLOCO 1] ROTAS DE CORRIDA ===
-import express from 'express';
-import {
-    criarCorrida,
-    listarCorridas,
-    buscarCorridaPorId,
-    atualizarCorrida,
-    deletarCorrida,
-    aceitarCorrida // ✅ Importando a nova função
-} from '../controllers/corridaController.js';
+// Arquivo: backend/routes/corridaRoutes.js
 
+const express = require('express');
 const router = express.Router();
+const {
+    solicitarCorrida,
+    buscarCorridasDisponiveis,
+    aceitarCorrida
+} = require('../controllers/corridaController');
 
-// Rotas de CRUD para corridas
-router.post('/corridas', criarCorrida);
-router.get('/corridas', listarCorridas);
-router.get('/corridas/:id', buscarCorridaPorId);
-router.put('/corridas/:id', atualizarCorrida);
-router.delete('/corridas/:id', deletarCorrida);
+// Rota para solicitar uma nova corrida (passageiro)
+router.post('/solicitar', solicitarCorrida);
 
-// ✅ Rota específica para o motorista aceitar uma corrida
-router.put('/corridas/aceitar/:id', aceitarCorrida);
+// Rota para buscar corridas disponíveis (motorista)
+router.get('/disponiveis', buscarCorridasDisponiveis);
 
+// Rota para o motorista aceitar uma corrida
+router.put('/:id/aceitar', aceitarCorrida);
+
+// ✅ ALTERAÇÃO: Exportando como um módulo ES padrão
 export default router;

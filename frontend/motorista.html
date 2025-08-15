@@ -1,44 +1,39 @@
-<!--
-  Arquivo: motorista.html
-  Função: Painel do motorista com dados, mapa e escuta de corridas no VAMUX
--->
-
 <!DOCTYPE html>
 <html lang="pt-BR">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Painel do Motorista - VAMUX</title>
-    <link rel="stylesheet" href="/css/style.css" />
-    <link rel="icon" href="/public/imagens/logo/favicon.png" />
-  </head>
-  <body>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Área do Motorista - VAMUX</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/motorista.css">
+</head>
+<body>
     <div class="container">
-      <!-- LOGO -->
-      <img src="/public/imagens/logo/logo.jpeg" alt="Logo VAMUX" class="logo" />
-
-      <!-- TÍTULO -->
-      <h1 class="titulo-gradiente">Painel do Motorista</h1>
-
-      <!-- INFORMAÇÕES DO MOTORISTA -->
-      <div id="infoMotorista">
-        <p><strong>Motorista:</strong> <span id="nomeMotorista">Carregando...</span></p>
-        <p><strong>Veículo:</strong> <span id="modeloVeiculo">-</span></p>
-        <p><strong>Placa:</strong> <span id="placaVeiculo">-</span></p>
-      </div>
-
-      <!-- BOTÕES -->
-      <button id="btnOnline" class="botao-roxo">Ficar Online</button>
-      <button id="btnSair" class="botao-roxo">Sair</button>
-
-      <!-- MAPA -->
-      <div id="mapa" style="width: 100%; height: 300px; border-radius: 12px; background-color: #eee; margin-top: 20px;"></div>
-
-      <!-- MENSAGEM DE STATUS -->
-      <div id="mensagem" class="mensagem-status"></div>
+        <h1 class="gradient-text">Bem-vindo, <span id="nomeMotorista">Motorista</span>!</h1>
+        <div id="painelStatus" class="painel-status">
+            <h2>Seu Status</h2>
+            <div class="status-info">
+                <span id="statusAtual" class="status-offline">Offline</span>
+                <button id="btnAlternarStatus" class="btn-online">Ficar Online</button>
+            </div>
+        </div>
+        <div id="painelCorridasDisponiveis" class="painel-corridas">
+            <h2>Corridas Disponíveis</h2>
+            <div id="listaCorridas">
+                <p class="mensagem-status">Aguardando corridas...</p>
+            </div>
+        </div>
+        <div id="painelCorridaAndamento" class="painel-corrida-ativa" style="display: none;">
+            <h2>Corrida Aceita</h2>
+            <p><strong>Passageiro:</strong> <span id="nomePassageiroAceito"></span></p>
+            <p><strong>Destino:</strong> <span id="destinoPassageiroAceito"></span></p>
+            <button id="btnIniciarCorrida" class="btn-sucesso">Iniciar Corrida</button>
+            <button id="btnFinalizarCorrida" class="btn-erro" style="display: none;">Finalizar Corrida</button>
+        </div>
+        <div id="mapa" class="mapa"></div>
+        <button id="btnSair" class="btn-sair">Sair</button>
     </div>
-
-    <!-- SCRIPT PRINCIPAL -->
+    <script src="https://maps.googleapis.com/maps/api/js?key=%VITE_Google Maps_API_KEY%&libraries=places&callback=initMap" defer></script>
     <script type="module" src="src/js/motorista.js" defer></script>
-  </body>
+</body>
 </html>
