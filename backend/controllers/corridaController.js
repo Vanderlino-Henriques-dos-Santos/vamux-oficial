@@ -1,105 +1,61 @@
-import { pool } from '../config/db.js';
+// Arquivo: backend/controllers/corridaController.js
 
-export const criarCorrida = async (req, res) => {
-    const { passageiro_id, origem, destino, distancia, preco_estimado } = req.body;
-    if (!passageiro_id || !origem || !destino || !distancia || !preco_estimado) {
-        return res.status(400).json({ erro: 'Dados incompletos para criar a corrida' });
-    }
+const { db } = require('../firebaseConfig');
+const { collection, addDoc, getDoc, doc, updateDoc, query, where, getDocs } = require('firebase/firestore');
+
+// Função para solicitar uma nova corrida
+exports.solicitarCorrida = async (req, res) => {
     try {
-        const resultado = await pool.query(
-            'INSERT INTO corridas(passageiro_id, origem, destino, distancia, preco_estimado, status) VALUES($1, $2, $3, $4, $5, $6) RETURNING *',
-            [passageiro_id, origem, destino, distancia, preco_estimado, 'pendente']
-        );
-        return res.status(201).json({ mensagem: 'Corrida criada com sucesso', corrida: resultado.rows[0] });
+        const novaCorrida = req.body;
+        novaCorrida.status = 'pendente';
+        novaCorrida.solicitadaEm = new Date();
+        const docRef = await addDoc(collection(db, "corridas"), novaCorrida);
+        res.status(201).send({ id: docRef.id, message: "Corrida solicitada com sucesso!" });
     } catch (error) {
-        console.error("Erro ao criar a corrida:", error);
-        return res.status(500).json({ erro: 'Erro interno ao criar a corrida' });
+        console.error("Erro ao solicitar corrida:", error);
+        res.status(500).send({ message: "Erro interno do servidor." });
     }
 };
 
-export const listarCorridas = async (req, res) => {
+// Função para buscar corridas disponíveis (pendentes)
+exports.buscarCorridasDisponiveis = async (req, res) => {
     try {
-        const resultado = await pool.query('SELECT * FROM corridas ORDER BY id DESC');
-        return res.status(200).json({ mensagem: 'Corridas listadas com sucesso', corridas: resultado.rows });
-    } catch (error) {
-        console.error("Erro ao listar as corridas:", error);
-        return res.status(500).json({ erro: 'Erro interno ao listar as corridas' });
-    }
-};
-
-export const buscarCorridaPorId = async (req, res) => {
-    const { id } = req.params;
-    try {
-        const resultado = await pool.query('SELECT * FROM corridas WHERE id = $1', [id]);
-        const corrida = resultado.rows[0];
-        if (!corrida) {
-            return res.status(404).json({ erro: 'Corrida não encontrada' });
-        }
-        return res.status(200).json({ mensagem: 'Corrida encontrada com sucesso', corrida: corrida });
-    } catch (error) {
-        console.error("Erro ao buscar a corrida:", error);
-        return res.status(500).json({ erro: 'Erro interno ao buscar a corrida' });
-    }
-};
-
-export const atualizarCorrida = async (req, res) => {
-    const { id } = req.params;
-    const { status } = req.body;
-    try {
-        const resultado = await pool.query(
-            'UPDATE corridas SET status = $1 WHERE id = $2 RETURNING *',
-            [status, id]
-        );
-        const corridaAtualizada = resultado.rows[0];
-        if (!corridaAtualizada) {
-            return res.status(404).json({ erro: 'Corrida não encontrada' });
-        }
-        return res.status(200).json({ mensagem: 'Corrida atualizada com sucesso', corrida: corridaAtualizada });
-    } catch (error) {
-        console.error("Erro ao atualizar a corrida:", error);
-        return res.status(500).json({ erro: 'Erro interno ao atualizar a corrida' });
-    }
-};
-
-export const deletarCorrida = async (req, res) => {
-    const { id } = req.params;
-    try {
-        const resultado = await pool.query('DELETE FROM corridas WHERE id = $1 RETURNING *', [id]);
-        const corridaDeletada = resultado.rows[0];
-        if (!corridaDeletada) {
-            return res.status(404).json({ erro: 'Corrida não encontrada' });
-        }
-        return res.status(200).json({
-            mensagem: `Corrida com ID ${id} deletada com sucesso`,
-            corrida: corridaDeletada
+        const q = query(collection(db, "corridas"), where("status", "==", "pendente"));
+        const querySnapshot = await getDocs(q);
+        const corridas = [];
+        querySnapshot.forEach((doc) => {
+            corridas.push({ id: doc.id, ...doc.data() });
         });
+        res.status(200).send(corridas);
     } catch (error) {
-        console.error("Erro ao deletar a corrida:", error);
-        return res.status(500).json({ erro: 'Erro interno ao deletar a corrida' });
+        console.error("Erro ao buscar corridas disponíveis:", error);
+        res.status(500).send({ message: "Erro interno do servidor." });
     }
 };
 
-export const aceitarCorrida = async (req, res) => {
-    const { id } = req.params;
-    const { motorista_id } = req.body;
-    if (!motorista_id) {
-        return res.status(400).json({ erro: 'ID do motorista é obrigatório.' });
-    }
+// Função para o motorista aceitar uma corrida
+exports.aceitarCorrida = async (req, res) => {
     try {
-        const resultado = await pool.query(
-            'UPDATE corridas SET status = $1, motorista_id = $2, updated_at = NOW() WHERE id = $3 AND status = $4 RETURNING *',
-            ['aceita', motorista_id, id, 'pendente']
-        );
-        const corridaAceita = resultado.rows[0];
-        if (!corridaAceita) {
-            return res.status(404).json({ erro: 'Corrida não encontrada ou já aceita.' });
-        }
-        return res.status(200).json({
-            mensagem: 'Corrida aceita com sucesso!',
-            corrida: corridaAceita
+        const { motoristaId, motoristaNome } = req.body;
+        const corridaId = req.params.id;
+
+        const corridaRef = doc(db, "corridas", corridaId);
+        await updateDoc(corridaRef, {
+            status: 'aceita',
+            motoristaId: motoristaId,
+            motoristaNome: motoristaNome,
+            aceitaEm: new Date(),
         });
+        res.status(200).send({ message: "Corrida aceita com sucesso!" });
     } catch (error) {
-        console.error("Erro ao aceitar a corrida:", error);
-        return res.status(500).json({ erro: 'Erro interno ao aceitar a corrida.' });
+        console.error("Erro ao aceitar corrida:", error);
+        res.status(500).send({ message: "Erro interno do servidor." });
     }
+};
+
+// IMPORTANTE: Exporte todas as funções que serão usadas nas rotas.
+module.exports = {
+    solicitarCorrida,
+    buscarCorridasDisponiveis,
+    aceitarCorrida
 };

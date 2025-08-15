@@ -1,123 +1,262 @@
-// frontend/js/passageiro.js
-import { auth, database } from './firebase-config.js';
-import { onValue, ref, push, serverTimestamp, set } from 'firebase/database';
-import { getAuth, onAuthStateChanged, signOut } from 'firebase/auth';
+import { auth, db } from './firebase-config.js';
+import { signOut } from "firebase/auth";
+import { collection, addDoc, doc, onSnapshot, getDoc, updateDoc } from "firebase/firestore";
 
-let user;
-let map;
-let autocompleteOrigem, autocompleteDestino;
-let directionsService, directionsRenderer;
+const nomePassageiroSpan = document.getElementById('nomePassageiro');
+const btnSair = document.getElementById('btnSair');
+const btnSolicitarCorrida = document.getElementById('btnSolicitarCorrida');
+const inputDestino = document.getElementById('destino');
+const painelSolicitacao = document.getElementById('painelSolicitacao');
+const painelCorridaAndamento = document.getElementById('painelCorridaAndamento');
+const statusAtualCorridaSpan = document.getElementById('statusAtualCorrida');
+const infoMotoristaDiv = document.getElementById('infoMotorista');
+const nomeMotoristaAceitouSpan = document.getElementById('nomeMotoristaAceitou');
+const telefoneMotoristaSpan = document.getElementById('telefoneMotorista');
+const btnCancelarCorrida = document.getElementById('btnCancelarCorrida');
 
-onAuthStateChanged(auth, (firebaseUser) => {
-    if (firebaseUser) {
-        user = firebaseUser;
-        initMap();
+const painelAvaliacao = document.getElementById('painelAvaliacao');
+const distanciaCorridaSpan = document.getElementById('distanciaCorrida');
+const duracaoCorridaSpan = document.getElementById('duracaoCorrida');
+const valorCorridaSpan = document.getElementById('valorCorrida');
+const containerEstrelasDiv = document.getElementById('containerEstrelas');
+const comentarioAvaliacaoTextarea = document.getElementById('comentarioAvaliacao');
+const btnEnviarAvaliacao = document.getElementById('btnEnviarAvaliacao');
+
+let passageiroData;
+let passageiroId;
+let mapa;
+let marcadorOrigem;
+let marcadorDestino;
+let marcadorMotorista;
+let autocomplete;
+let corridaEmAndamentoRef;
+let unsubscribe;
+let unsubscribeMotorista;
+let valorAvaliacao = 0;
+
+window.initMap = function() {
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                const pos = { lat: position.coords.latitude, lng: position.coords.longitude };
+                mapa = new google.maps.Map(document.getElementById('mapa'), { center: pos, zoom: 15 });
+                marcadorOrigem = new google.maps.Marker({ position: pos, map: mapa, title: "Sua localização" });
+                autocomplete = new google.maps.places.Autocomplete(inputDestino);
+                autocomplete.bindTo('bounds', mapa);
+            },
+            () => { alert("Não foi possível obter sua localização."); }
+        );
+    } else {
+        alert("Geolocalização não é suportada por este navegador.");
+    }
+};
+
+async function carregarDadosDoPassageiro() {
+    const usuarioLogado = auth.currentUser;
+    if (!usuarioLogado) { window.location.href = 'login.html'; return; }
+
+    passageiroId = usuarioLogado.uid;
+    const docSnap = await getDoc(doc(db, "usuarios", passageiroId));
+
+    if (docSnap.exists()) {
+        passageiroData = docSnap.data();
+        nomePassageiroSpan.textContent = passageiroData.nome;
     } else {
         window.location.href = 'login.html';
     }
-});
-
-function initMap() {
-    const defaultPos = { lat: -23.55052, lng: -46.633308 }; // São Paulo
-    map = new google.maps.Map(document.getElementById('mapa'), {
-        center: defaultPos,
-        zoom: 12,
-    });
-    directionsService = new google.maps.DirectionsService();
-    directionsRenderer = new google.maps.DirectionsRenderer({ map: map });
-    initAutocomplete();
-}
-
-function initAutocomplete() {
-    autocompleteOrigem = new google.maps.places.Autocomplete(
-        document.getElementById('origem'),
-        { fields: ['geometry', 'name'] }
-    );
-    autocompleteDestino = new google.maps.places.Autocomplete(
-        document.getElementById('destino'),
-        { fields: ['geometry', 'name'] }
-    );
-    // Adicionar listeners para quando um local é selecionado
 }
 
 async function solicitarCorrida() {
-    const origem = autocompleteOrigem.getPlace();
-    const destino = autocompleteDestino.getPlace();
-    if (!origem || !destino) {
-        showMensagem('Selecione um ponto de origem e destino', 'erro');
+    if (!autocomplete || !autocomplete.getPlace()) {
+        alert("Por favor, selecione um destino válido da lista.");
         return;
     }
 
-    const request = {
-        origin: origem.geometry.location,
-        destination: destino.geometry.location,
-        travelMode: 'DRIVING',
-    };
+    const destinoPlace = autocomplete.getPlace();
+    btnSolicitarCorrida.disabled = true;
 
     try {
-        const response = await directionsService.route(request);
-        const route = response.routes[0].legs[0];
-        
-        const corridaRef = push(ref(database, 'corridas'));
-        set(corridaRef, {
-            rideId: corridaRef.key,
-            passageiroId: user.uid,
+        const corridaData = {
+            passageiroId: passageiroId,
+            passageiroNome: passageiroData.nome,
             origem: {
-                lat: origem.geometry.location.lat(),
-                lng: origem.geometry.location.lng(),
-                endereco: origem.name
+                lat: marcadorOrigem.getPosition().lat(),
+                lng: marcadorOrigem.getPosition().lng(),
+                endereco: "Sua localização"
             },
             destino: {
-                lat: destino.geometry.location.lat(),
-                lng: destino.geometry.location.lng(),
-                endereco: destino.name
+                lat: destinoPlace.geometry.location.lat(),
+                lng: destinoPlace.geometry.location.lng(),
+                endereco: destinoPlace.formatted_address
             },
-            distancia_km: (route.distance.value / 1000).toFixed(2),
-            tempo_min: (route.duration.value / 60).toFixed(0),
-            valor_estimado: (route.distance.value / 1000 * 3).toFixed(2), // Exemplo de cálculo
             status: 'pendente',
-            createdAt: serverTimestamp(),
-        });
+            solicitadaEm: new Date(),
+        };
 
-        showMensagem('Corrida solicitada com sucesso. Aguardando motorista…', 'sucesso');
-        escutarStatusCorrida(corridaRef.key);
-    } catch (e) {
-        showMensagem('Falha ao calcular rota/estimativa', 'erro');
+        const docRef = await addDoc(collection(db, "corridas"), corridaData);
+        corridaEmAndamentoRef = docRef;
+
+        painelSolicitacao.style.display = 'none';
+        painelCorridaAndamento.style.display = 'block';
+        statusAtualCorridaSpan.textContent = "Buscando motorista...";
+
+        ouvirStatusDaCorrida();
+
+    } catch (error) {
+        console.error("Erro ao solicitar corrida:", error);
+        alert("Erro ao solicitar a corrida. Tente novamente.");
+        btnSolicitarCorrida.disabled = false;
     }
 }
 
-function escutarStatusCorrida(rideId) {
-    const rideRef = ref(database, `corridas/${rideId}`);
-    onValue(rideRef, (snapshot) => {
-        const corrida = snapshot.val();
-        if (!corrida) return;
+function ouvirStatusDaCorrida() {
+    if (!corridaEmAndamentoRef) return;
 
-        // Implementar a lógica de estados conforme a especificação
-        switch (corrida.status) {
-            case 'aceita':
-                showMensagem('Corrida encontrada!', 'sucesso');
-                break;
-            case 'motorista_chegou':
-                showMensagem('Seu motorista chegou.', 'sucesso');
-                break;
-            case 'finalizada':
-                showMensagem('Corrida finalizada.', 'sucesso');
-                resetUI();
-                break;
-            // ... demais status
+    unsubscribe = onSnapshot(corridaEmAndamentoRef, async (docSnap) => {
+        if (docSnap.exists()) {
+            const corrida = docSnap.data();
+            
+            if (corrida.status === 'aceita') {
+                statusAtualCorridaSpan.textContent = "Motorista a caminho!";
+                const motoristaRef = doc(db, "usuarios", corrida.motoristaId);
+                const motoristaSnap = await getDoc(motoristaRef);
+                if (motoristaSnap.exists()) {
+                    const motoristaData = motoristaSnap.data();
+                    nomeMotoristaAceitouSpan.textContent = motoristaData.nome;
+                    telefoneMotoristaSpan.textContent = motoristaData.telefone;
+                    infoMotoristaDiv.style.display = 'block';
+                    ouvirLocalizacaoDoMotorista(corrida.motoristaId);
+                }
+            } else if (corrida.status === 'in_progress') {
+                statusAtualCorridaSpan.textContent = "Corrida em andamento!";
+            } else if (corrida.status === 'completed') {
+                painelCorridaAndamento.style.display = 'none';
+                painelAvaliacao.style.display = 'block';
+                
+                distanciaCorridaSpan.textContent = corrida.distancia_km;
+                duracaoCorridaSpan.textContent = corrida.duracao_minutos;
+                valorCorridaSpan.textContent = corrida.valor_corrida;
+                
+                if (unsubscribeMotorista) unsubscribeMotorista();
+                if (marcadorMotorista) {
+                    marcadorMotorista.setMap(null);
+                    marcadorMotorista = null;
+                }
+            }
         }
     });
 }
 
-function showMensagem(texto, tipo) {
-    const mensagemElement = document.getElementById('mensagem-status');
-    mensagemElement.textContent = texto;
-    mensagemElement.className = `mensagem-status ${tipo}`;
-    mensagemElement.style.display = 'block';
+function ouvirLocalizacaoDoMotorista(motoristaId) {
+    const motoristaRef = doc(db, "usuarios", motoristaId);
+    
+    unsubscribeMotorista = onSnapshot(motoristaRef, (docSnap) => {
+        if (docSnap.exists() && docSnap.data().localizacao) {
+            const motorista = docSnap.data();
+            const motoristaPos = new google.maps.LatLng(motorista.localizacao.lat, motorista.localizacao.lng);
+            
+            if (!marcadorMotorista) {
+                marcadorMotorista = new google.maps.Marker({
+                    position: motoristaPos,
+                    map: mapa,
+                    title: motorista.nome,
+                    icon: "http://maps.google.com/mapfiles/ms/icons/car.png"
+                });
+            } else {
+                marcadorMotorista.setPosition(motoristaPos);
+            }
+            
+            const bounds = new google.maps.LatLngBounds();
+            bounds.extend(marcadorOrigem.getPosition());
+            bounds.extend(marcadorMotorista.getPosition());
+            mapa.fitBounds(bounds);
+        }
+    });
 }
 
-function resetUI() {
-    // Limpar o mapa, mensagens, etc.
+function limparEstadoCorrida() {
+    painelCorridaAndamento.style.display = 'none';
+    painelSolicitacao.style.display = 'block';
+    btnSolicitarCorrida.disabled = false;
+    infoMotoristaDiv.style.display = 'none';
+    if (unsubscribe) unsubscribe();
+    if (unsubscribeMotorista) unsubscribeMotorista();
+    corridaEmAndamentoRef = null;
+    if (marcadorMotorista) {
+        marcadorMotorista.setMap(null);
+        marcadorMotorista = null;
+    }
+    // Reinicializa a tela de avaliação
+    valorAvaliacao = 0;
+    containerEstrelasDiv.querySelectorAll('.estrela').forEach(e => e.classList.remove('selecionada'));
+    comentarioAvaliacaoTextarea.value = '';
 }
 
-window.solicitarCorrida = solicitarCorrida;
+async function cancelarCorrida() {
+    if (!corridaEmAndamentoRef) return;
+
+    try {
+        await updateDoc(corridaEmAndamentoRef, { status: 'cancelada' });
+        alert("Corrida cancelada com sucesso.");
+        limparEstadoCorrida();
+    } catch (error) {
+        console.error("Erro ao cancelar corrida:", error);
+        alert("Erro ao cancelar a corrida. Tente novamente.");
+    }
+}
+
+document.addEventListener('DOMContentLoaded', carregarDadosDoPassageiro);
+btnSair.addEventListener('click', async () => {
+    try {
+        await signOut(auth);
+        localStorage.removeItem('usuario');
+        window.location.href = 'login.html';
+    } catch (error) {
+        console.error("Erro ao sair:", error);
+    }
+});
+btnSolicitarCorrida.addEventListener('click', solicitarCorrida);
+btnCancelarCorrida.addEventListener('click', cancelarCorrida);
+
+containerEstrelasDiv.addEventListener('click', (e) => {
+    if (e.target.classList.contains('estrela')) {
+        const estrelas = containerEstrelasDiv.querySelectorAll('.estrela');
+        const valorClicado = parseInt(e.target.dataset.valor);
+        valorAvaliacao = valorClicado;
+        estrelas.forEach(estrela => {
+            if (parseInt(estrela.dataset.valor) <= valorClicado) {
+                estrela.classList.add('selecionada');
+            } else {
+                estrela.classList.remove('selecionada');
+            }
+        });
+    }
+});
+
+btnEnviarAvaliacao.addEventListener('click', async () => {
+    if (valorAvaliacao === 0) {
+        alert("Por favor, selecione uma nota de 1 a 5 estrelas.");
+        return;
+    }
+    
+    const comentario = comentarioAvaliacaoTextarea.value;
+    
+    try {
+        await updateDoc(corridaEmAndamentoRef, {
+            avaliacao_passageiro: {
+                nota: valorAvaliacao,
+                comentario: comentario,
+                avaliadoEm: new Date(),
+            }
+        });
+        
+        alert("Avaliação enviada com sucesso! Obrigado!");
+        limparEstadoCorrida();
+        painelAvaliacao.style.display = 'none';
+        painelSolicitacao.style.display = 'block';
+        
+    } catch (error) {
+        console.error("Erro ao enviar avaliação:", error);
+        alert("Não foi possível enviar sua avaliação. Tente novamente.");
+    }
+});

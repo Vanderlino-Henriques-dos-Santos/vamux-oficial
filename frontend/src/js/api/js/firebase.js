@@ -1,19 +1,29 @@
-// firebase.js - Conecta com o Firebase usando Admin SDK
+// Arquivo: frontend/src/js/firebase-config.js
 
-import { initializeApp, cert } from "firebase-admin/app";
-import { getDatabase } from "firebase-admin/database";
-import dotenv from "dotenv";
+// 1. Importa as funções necessárias do Firebase SDK
+import { initializeApp } from "firebase/app";
+import { getAuth } from "firebase/auth";
+import { getFirestore } from "firebase/firestore";
 
-dotenv.config();
+// 2. Objeto de configuração do seu projeto Firebase
+//    ✅ VOCÊ DEVE SUBSTITUIR ESTES VALORES PELOS SEUS
+const firebaseConfig = {
+    apiKey: "SUA_API_KEY",
+    authDomain: "SEU_AUTH_DOMAIN",
+    projectId: "SEU_PROJECT_ID",
+    storageBucket: "SEU_STORAGE_BUCKET",
+    messagingSenderId: "SEU_MESSAGING_SENDER_ID",
+    appId: "SEU_APP_ID"
+};
 
-const app = initializeApp({
-  credential: cert({
-    projectId: process.env.FIREBASE_PROJECT_ID,
-    privateKey: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n'),
-    clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-  }),
-  databaseURL: process.env.FIREBASE_DATABASE_URL,
-});
+// 3. Inicializa o aplicativo Firebase com a sua configuração
+const app = initializeApp(firebaseConfig);
 
-const db = getDatabase();
-export { db };
+// 4. Obtém instâncias dos serviços que vamos usar
+//    - `auth`: Serviço de Autenticação do Firebase
+//    - `db`: Serviço de Banco de Dados (Firestore)
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+// 5. Exporta as instâncias para que outros arquivos possam usá-las
+export { auth, db };

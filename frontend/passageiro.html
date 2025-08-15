@@ -1,44 +1,57 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-1.0">
-    <title>Área do Passageiro - VAMUX</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Passageiro - VAMUX</title>
     <link rel="stylesheet" href="css/style.css">
-    
-    <script src="https://maps.googleapis.com/maps/api/js?libraries=places,geometry,distance_matrix&callback=initMap" defer></script>
+    <link rel="stylesheet" href="css/passageiro.css">
 </head>
 <body>
     <div class="container">
-        <div class="header">
-            <img src="imagens/logo.jpeg" alt="Logo VAMUX">
-            <h1>Área do Passageiro</h1>
+        <div class="painel-info">
+            <h1 class="gradient-text">Bem-vindo, <span id="nomePassageiro">Passageiro</span>!</h1>
+            <p>Pronto para a sua próxima viagem?</p>
         </div>
-        
-        <div id="map-container">
-            <div id="map"></div>
-        </div>
-
-        <div class="form-container">
+        <div id="painelSolicitacao" class="painel-solicitacao">
+            <h2>Solicitar Corrida</h2>
             <div class="input-group">
-                <label for="origem">Origem:</label>
-                <input type="text" id="origem" placeholder="Local de partida">
+                <input type="text" id="destino" placeholder="Para onde você quer ir?" required>
             </div>
-
-            <div class="input-group">
-                <label for="destino">Destino:</label>
-                <input type="text" id="destino" placeholder="Digite o destino">
-            </div>
-
-            <div class="botoes-container">
-                <button id="btnCalcular">Calcular Estimativa</button>
-                <button id="btnChamar">Chamar Corrida</button>
-            </div>
-            
-            <p id="estimativa"></p>
+            <button id="btnSolicitarCorrida" class="btn">Solicitar Corrida</button>
+            <p id="statusCorrida" class="mensagem-status"></p>
         </div>
+        <div id="painelCorridaAndamento" class="painel-andamento" style="display: none;">
+            <h2>Corrida em andamento</h2>
+            <p><strong>Status:</strong> <span id="statusAtualCorrida">Buscando motorista...</span></p>
+            <div id="infoMotorista" class="info-motorista" style="display: none;">
+                <p><strong>Motorista:</strong> <span id="nomeMotoristaAceitou"></span></p>
+                <p><strong>Telefone:</strong> <span id="telefoneMotorista"></span></p>
+            </div>
+            <button id="btnCancelarCorrida" class="btn-cancelar">Cancelar Corrida</button>
+        </div>
+        <div id="painelAvaliacao" class="painel-avaliacao" style="display: none;">
+            <h2>Corrida Finalizada!</h2>
+            <div class="resumo-corrida">
+                <p><strong>Distância:</strong> <span id="distanciaCorrida"></span> km</p>
+                <p><strong>Duração:</strong> <span id="duracaoCorrida"></span> min</p>
+                <p><strong>Valor Total:</strong> R$ <span id="valorCorrida"></span></p>
+            </div>
+            <h3>Avalie seu motorista</h3>
+            <div class="estrelas" id="containerEstrelas">
+                <span class="estrela" data-valor="1">★</span>
+                <span class="estrela" data-valor="2">★</span>
+                <span class="estrela" data-valor="3">★</span>
+                <span class="estrela" data-valor="4">★</span>
+                <span class="estrela" data-valor="5">★</span>
+            </div>
+            <textarea id="comentarioAvaliacao" placeholder="Deixe um comentário sobre a viagem..."></textarea>
+            <button id="btnEnviarAvaliacao" class="btn">Enviar Avaliação</button>
+        </div>
+        <div id="mapa" class="mapa"></div>
+        <button id="btnSair" class="btn-sair">Sair</button>
     </div>
-    
-    <script src="src/js/passageiro.js" type="module"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=%VITE_Google Maps_API_KEY%&libraries=places&callback=initMap" defer></script>
+    <script type="module" src="src/js/passageiro.js" defer></script>
 </body>
 </html>
