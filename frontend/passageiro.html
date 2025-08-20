@@ -1,57 +1,34 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Passageiro - VAMUX</title>
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="css/passageiro.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VAMUX - Passageiro</title>
+  <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-    <div class="container">
-        <div class="painel-info">
-            <h1 class="gradient-text">Bem-vindo, <span id="nomePassageiro">Passageiro</span>!</h1>
-            <p>Pronto para a sua próxima viagem?</p>
-        </div>
-        <div id="painelSolicitacao" class="painel-solicitacao">
-            <h2>Solicitar Corrida</h2>
-            <div class="input-group">
-                <input type="text" id="destino" placeholder="Para onde você quer ir?" required>
-            </div>
-            <button id="btnSolicitarCorrida" class="btn">Solicitar Corrida</button>
-            <p id="statusCorrida" class="mensagem-status"></p>
-        </div>
-        <div id="painelCorridaAndamento" class="painel-andamento" style="display: none;">
-            <h2>Corrida em andamento</h2>
-            <p><strong>Status:</strong> <span id="statusAtualCorrida">Buscando motorista...</span></p>
-            <div id="infoMotorista" class="info-motorista" style="display: none;">
-                <p><strong>Motorista:</strong> <span id="nomeMotoristaAceitou"></span></p>
-                <p><strong>Telefone:</strong> <span id="telefoneMotorista"></span></p>
-            </div>
-            <button id="btnCancelarCorrida" class="btn-cancelar">Cancelar Corrida</button>
-        </div>
-        <div id="painelAvaliacao" class="painel-avaliacao" style="display: none;">
-            <h2>Corrida Finalizada!</h2>
-            <div class="resumo-corrida">
-                <p><strong>Distância:</strong> <span id="distanciaCorrida"></span> km</p>
-                <p><strong>Duração:</strong> <span id="duracaoCorrida"></span> min</p>
-                <p><strong>Valor Total:</strong> R$ <span id="valorCorrida"></span></p>
-            </div>
-            <h3>Avalie seu motorista</h3>
-            <div class="estrelas" id="containerEstrelas">
-                <span class="estrela" data-valor="1">★</span>
-                <span class="estrela" data-valor="2">★</span>
-                <span class="estrela" data-valor="3">★</span>
-                <span class="estrela" data-valor="4">★</span>
-                <span class="estrela" data-valor="5">★</span>
-            </div>
-            <textarea id="comentarioAvaliacao" placeholder="Deixe um comentário sobre a viagem..."></textarea>
-            <button id="btnEnviarAvaliacao" class="btn">Enviar Avaliação</button>
-        </div>
-        <div id="mapa" class="mapa"></div>
-        <button id="btnSair" class="btn-sair">Sair</button>
+  <header>
+    <img src="img/logo.png" alt="Logo VAMUX" class="logo">
+    <h1>Painel do Passageiro</h1>
+  </header>
+
+  <main>
+    <div id="map" class="map"></div>
+
+    <div class="painel">
+      <h2>Solicitar Corrida</h2>
+      <input type="text" id="origem" placeholder="Origem">
+      <input type="text" id="destino" placeholder="Destino">
+      <button id="btnSolicitar" class="btn">Solicitar Corrida</button>
     </div>
-    <script src="https://maps.googleapis.com/maps/api/js?key=%VITE_Google Maps_API_KEY%&libraries=places&callback=initMap" defer></script>
-    <script type="module" src="src/js/passageiro.js" defer></script>
+
+    <div id="statusCorrida" class="status">
+      <p><strong>Status:</strong> <span id="statusText">Nenhuma corrida</span></p>
+      <button id="btnCancelar" class="btn danger">Cancelar Corrida</button>
+    </div>
+  </main>
+
+  <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_MAPS_KEY&libraries=places"></script>
+  <script type="module" src="src/js/passageiro.js" defer></script>
 </body>
 </html>

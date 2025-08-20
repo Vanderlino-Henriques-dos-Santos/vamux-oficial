@@ -1,46 +1,50 @@
-// listarUsuarios.js - Lista todos os usuários do Firebase em uma tabela
+// -----------------------------------------
+// Listar Usuários (RTDB)
+// -----------------------------------------
+// Lê /usuarios e imprime em uma listagem simples na tela.
 
-// === BLOCO 01: IMPORTAÇÕES FIREBASE ===
-import { getDatabase, ref, onValue } from "firebase/database";
-import { app } from "./firebase-config.js";
+import { rtdb } from "./firebase-config.js";
+import { ref, onValue } from "firebase/database";
 
-// === BLOCO 02: REFERÊNCIAS INICIAIS ===
-const database = getDatabase(app);
-const usuariosBody = document.getElementById("usuariosBody");
+const cont = document.getElementById("lista-usuarios");
 
-// === BLOCO 03: FUNÇÃO PARA EXIBIR USUÁRIOS ===
-function carregarUsuarios() {
-  const usuariosRef = ref(database, "usuarios");
+onValue(ref(rtdb, "usuarios"), (snapshot) => {
+  const usuarios = snapshot.val() || {};
+  if (!cont) return;
 
-  onValue(usuariosRef, (snapshot) => {
-    usuariosBody.innerHTML = ""; // Limpa a tabela
+  let html = `
+    <table class="min-w-full text-sm">
+      <thead>
+        <tr class="text-left border-b">
+          <th class="py-2 pr-4">ID</th>
+          <th class="py-2 pr-4">Nome</th>
+          <th class="py-2 pr-4">Email</th>
+          <th class="py-2 pr-4">Tipo</th>
+          <th class="py-2 pr-4">Verificado</th>
+        </tr>
+      </thead>
+      <tbody>
+  `;
 
-    if (snapshot.exists()) {
-      snapshot.forEach((tipoSnapshot) => {
-        const tipo = tipoSnapshot.key; // "passageiros" ou "motoristas"
+  const ids = Object.keys(usuarios);
+  if (ids.length === 0) {
+    cont.innerHTML = `<p class="text-gray-600">Nenhum usuário encontrado.</p>`;
+    return;
+  }
 
-        tipoSnapshot.forEach((usuarioSnapshot) => {
-          const usuario = usuarioSnapshot.val();
-          const linha = document.createElement("tr");
+  for (const id of ids) {
+    const u = usuarios[id] || {};
+    html += `
+      <tr class="border-b">
+        <td class="py-2 pr-4">${id}</td>
+        <td class="py-2 pr-4">${u.nome ?? "-"}</td>
+        <td class="py-2 pr-4">${u.email ?? "-"}</td>
+        <td class="py-2 pr-4">${u.tipo ?? "-"}</td>
+        <td class="py-2 pr-4">${u.verificado ? "✅" : "❌"}</td>
+      </tr>
+    `;
+  }
 
-          linha.innerHTML = `
-            <td>${tipo}</td>
-            <td>${usuario.nome || "-"}</td>
-            <td>${usuario.email || "-"}</td>
-            <td>${usuario.modelo || "-"}</td>
-            <td>${usuario.placa || "-"}</td>
-          `;
-
-          usuariosBody.appendChild(linha);
-        });
-      });
-    } else {
-      const linha = document.createElement("tr");
-      linha.innerHTML = `<td colspan="5">Nenhum usuário encontrado.</td>`;
-      usuariosBody.appendChild(linha);
-    }
-  });
-}
-
-// === BLOCO 04: INICIALIZA ===
-carregarUsuarios();
+  html += `</tbody></table>`;
+  cont.innerHTML = html;
+});

@@ -1,26 +1,29 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VAMUX - O seu aplicativo de mobilidade</title>
-    
-    <link rel="stylesheet" href="css/style.css">
-</head>
-<body>
-    <div class="container-principal">
-        <img src="imagens/logo/logo.jpeg" alt="Logo VAMUX" class="logo-ajustada">
-        
-        <h1 class="gradient-text">Seja Bem Vindo!!!</h1>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Teste VAMUX</title>
+  <link rel="stylesheet" href="./css/output.css" />
+  <script type="module">
+    import Swal from "sweetalert2";
 
-        <p>A maneira mais rápida, segura e fácil de se mover pela cidade.</p>
-        
-        <div class="botoes-home">
-            <a href="login.html" class="btn">Entrar</a>
-            <a href="cadastro.html" class="btn">Cadastre-se</a>
-        </div>
-    </div>
-    
-    <script type="module" src="src/js/main.js"></script>
+    window.addEventListener("DOMContentLoaded", () => {
+      const btn = document.getElementById("teste");
+      btn.addEventListener("click", () => {
+        Swal.fire({
+          title: "Tá funcionando, chefão! 🚀",
+          text: "Tailwind + SweetAlert2 integrados com sucesso.",
+          icon: "success",
+          confirmButtonText: "Top!"
+        });
+      });
+    });
+  </script>
+</head>
+<body class="flex items-center justify-center h-screen bg-gray-100">
+  <button id="teste" class="px-6 py-3 bg-blue-600 text-white rounded-lg shadow-lg hover:bg-blue-700">
+    Testar SweetAlert
+  </button>
 </body>
 </html>

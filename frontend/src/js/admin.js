@@ -1,87 +1,111 @@
-// === BLOCO 1: IMPORTAÇÕES DO FIREBASE ===
-import { getDatabase, ref, onValue, update } from "firebase/database";
-import { app } from "./firebase-config.js";
+// -----------------------------------------
+// Admin - Aprovação de Motoristas (RTDB)
+// -----------------------------------------
+// Lê "usuarios" na RTDB e mostra os motoristas com verificado=false.
+// Permite aprovar/rejeitar (atualiza verificado na RTDB).
 
-// === BLOCO 2: INICIALIZAÇÕES ===
-const database = getDatabase(app);
+import { rtdb } from "./firebase-config.js";
+import { ref, onValue, update } from "firebase/database";
+
+// Elementos da página (veja admin.html abaixo)
 const listaMotoristas = document.getElementById("lista-motoristas");
 const mensagem = document.getElementById("mensagem");
 
-// === BLOCO 3: BUSCA MOTORISTAS NÃO VERIFICADOS ===
-onValue(ref(database, "usuarios"), (snapshot) => {
-  listaMotoristas.innerHTML = ""; // Limpa a lista
-  const usuarios = snapshot.val();
+// Observa mudanças em /usuarios
+onValue(ref(rtdb, "usuarios"), (snapshot) => {
+  listaMotoristas.innerHTML = ""; // Limpa
+  const usuarios = snapshot.val() || {};
 
-  for (let id in usuarios) {
+  let pendentes = 0;
+  for (const id in usuarios) {
     const user = usuarios[id];
-    if (user.tipo === "motorista" && user.verificado === false) {
+    if (user?.tipo === "motorista" && !user?.verificado) {
+      pendentes++;
       exibirMotorista(id, user);
     }
   }
 
-  if (!listaMotoristas.innerHTML) {
-    listaMotoristas.innerHTML = "<p>Nenhum motorista pendente de aprovação.</p>";
+  if (pendentes === 0) {
+    listaMotoristas.innerHTML = `<p class="text-gray-600">Nenhum motorista pendente de aprovação.</p>`;
   }
 });
 
-// === BLOCO 4: FUNÇÃO PARA EXIBIR MOTORISTA NA TELA ===
+// Cria o card do motorista
 function exibirMotorista(id, user) {
   const card = document.createElement("div");
-  card.className = "card";
+  card.className =
+    "rounded-xl border bg-white p-4 shadow-sm flex flex-col gap-2";
 
   card.innerHTML = `
-    <h3>${user.nome}</h3>
-    <p><strong>Email:</strong> ${user.email}</p>
-    <p><strong>Veículo:</strong> ${user.modeloVeiculo || "Não informado"}</p>
-    <p><strong>Placa:</strong> ${user.placaVeiculo || "Não informado"}</p>
+    <h3 class="text-lg font-semibold">${user?.nome ?? "Sem nome"}</h3>
+    <p><strong>Email:</strong> ${user?.email ?? "-"}</p>
+    <p><strong>Veículo:</strong> ${user?.modeloVeiculo ?? "-"}</p>
+    <p><strong>Placa:</strong> ${user?.placaVeiculo ?? "-"}</p>
 
-    <div class="docs">
-      <a href="${user.cnhURL}" target="_blank">📄 CNH</a>
-      <a href="${user.documentoVeiculoURL}" target="_blank">📄 Documento do Veículo</a>
-      <a href="${user.comprovanteResidenciaURL}" target="_blank">📄 Comprovante de Residência</a>
+    <div class="flex flex-wrap gap-3 py-2">
+      ${
+        user?.cnhURL
+          ? `<a class="text-violet-600 underline" href="${user.cnhURL}" target="_blank">📄 CNH</a>`
+          : `<span class="text-gray-400">CNH não enviada</span>`
+      }
+      ${
+        user?.documentoVeiculoURL
+          ? `<a class="text-violet-600 underline" href="${user.documentoVeiculoURL}" target="_blank">📄 Documento Veículo</a>`
+          : `<span class="text-gray-400">Doc. veículo não enviado</span>`
+      }
+      ${
+        user?.comprovanteResidenciaURL
+          ? `<a class="text-violet-600 underline" href="${user.comprovanteResidenciaURL}" target="_blank">📄 Comprovante Residência</a>`
+          : `<span class="text-gray-400">Comp. residência não enviado</span>`
+      }
     </div>
 
-    <div class="botoes">
-      <button class="btn-aprovar" onclick="aprovarMotorista('${id}')">✅ Aprovar</button>
-      <button class="btn-rejeitar" onclick="rejeitarMotorista('${id}')">❌ Rejeitar</button>
+    <div class="flex gap-2">
+      <button class="btn-aprovar bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded"
+              data-id="${id}">✅ Aprovar</button>
+      <button class="btn-rejeitar bg-rose-600 hover:bg-rose-700 text-white px-4 py-2 rounded"
+              data-id="${id}">❌ Rejeitar</button>
     </div>
   `;
+
+  // Eventos (modo moderno, sem expor no window)
+  card.querySelector(".btn-aprovar")?.addEventListener("click", () => aprovarMotorista(id));
+  card.querySelector(".btn-rejeitar")?.addEventListener("click", () => rejeitarMotorista(id));
 
   listaMotoristas.appendChild(card);
 }
 
-// === BLOCO 5: FUNÇÃO DE APROVAR MOTORISTA ===
-window.aprovarMotorista = async (id) => {
+// Aprovar
+async function aprovarMotorista(id) {
   try {
-    await update(ref(database, `usuarios/${id}`), {
-      verificado: true,
-    });
+    await update(ref(rtdb, `usuarios/${id}`), { verificado: true });
     mostrarMensagem("Motorista aprovado com sucesso!", "sucesso");
   } catch (error) {
     console.error(error);
     mostrarMensagem("Erro ao aprovar motorista.", "erro");
   }
-};
+}
 
-// === BLOCO 6: FUNÇÃO DE REJEITAR MOTORISTA ===
-window.rejeitarMotorista = async (id) => {
+// Rejeitar
+async function rejeitarMotorista(id) {
   try {
-    await update(ref(database, `usuarios/${id}`), {
-      verificado: false,
-    });
+    await update(ref(rtdb, `usuarios/${id}`), { verificado: false });
     mostrarMensagem("Motorista rejeitado com sucesso.", "erro");
   } catch (error) {
     console.error(error);
     mostrarMensagem("Erro ao rejeitar motorista.", "erro");
   }
-};
+}
 
-// === BLOCO 7: EXIBIR MENSAGEM VISUAL ===
+// UI: mensagens
 function mostrarMensagem(texto, tipo) {
-  mensagem.innerText = texto;
-  mensagem.style.color = tipo === "sucesso" ? "#28a745" : "#dc3545";
+  if (!mensagem) return;
+  mensagem.textContent = texto;
+  mensagem.className =
+    "text-sm mt-3 " + (tipo === "sucesso" ? "text-emerald-700" : "text-rose-700");
 
   setTimeout(() => {
-    mensagem.innerText = "";
+    mensagem.textContent = "";
+    mensagem.className = "text-sm mt-3 text-gray-500";
   }, 4000);
 }

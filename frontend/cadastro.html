@@ -1,26 +1,31 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VAMUX - O seu aplicativo de mobilidade</title>
-    
-    <link rel="stylesheet" href="css/style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cadastro - VAMUX</title>
+  <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-    <div class="container-principal">
-        <img src="imagens/logo/logo.jpeg" alt="Logo VAMUX" class="logo-ajustada">
-        
-        <h1 class="gradient-text">Bem-vindo ao VAMUX</h1>
+  <header>
+    <img src="img/logo.png" alt="Logo VAMUX" class="logo">
+    <h1>Cadastro</h1>
+  </header>
 
-        <p>A maneira mais rápida, segura e fácil de se mover pela cidade.</p>
-        
-        <div class="botoes-home">
-            <a href="login.html" class="btn">Entrar</a>
-            <a href="cadastro.html" class="btn">Cadastre-se</a>
-        </div>
-    </div>
-    
-    <script type="module" src="src/js/main.js"></script>
+  <main>
+    <form id="cadastroForm">
+      <input type="text" id="nome" placeholder="Nome completo" required>
+      <input type="email" id="email" placeholder="Email" required>
+      <input type="password" id="senha" placeholder="Senha" required>
+      <select id="tipo">
+        <option value="passageiro">Passageiro</option>
+        <option value="motorista">Motorista</option>
+      </select>
+      <button type="submit" class="btn">Cadastrar</button>
+    </form>
+    <p><a href="login.html">Já tem conta? Faça login</a></p>
+  </main>
+
+  <script type="module" src="src/js/cadastro.js" defer></script>
 </body>
 </html>

@@ -7,12 +7,16 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-node_modules
-dist
-dist-ssr
-*.local
+# Diretórios de dependências
+node_modules/
 
-# Editor directories and files
+# Build do Vite
+dist/
+dist-ssr/
+.vite/
+
+# Configs locais
+*.local
 .vscode/*
 !.vscode/extensions.json
 .idea
@@ -23,18 +27,9 @@ dist-ssr
 *.sln
 *.sw?
 
-# Diretório de dependências do Node.js
-# Contém todas as bibliotecas que o 'npm install' instala.
-/node_modules
-
 # Variáveis de ambiente
-# Crucial para a segurança! Impede que suas chaves de API sejam enviadas.
 .env
 
-# Diretório de build do Vite
-# Contém os arquivos otimizados para produção.
-/dist
-
-# Cache e logs do npm
-npm-debug.log*
-.npm
+# Arquivos de lock alternativos
+yarn.lock
+pnpm-lock.yaml

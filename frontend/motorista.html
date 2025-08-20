@@ -1,39 +1,38 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Área do Motorista - VAMUX</title>
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="css/motorista.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VAMUX - Motorista</title>
+  <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-    <div class="container">
-        <h1 class="gradient-text">Bem-vindo, <span id="nomeMotorista">Motorista</span>!</h1>
-        <div id="painelStatus" class="painel-status">
-            <h2>Seu Status</h2>
-            <div class="status-info">
-                <span id="statusAtual" class="status-offline">Offline</span>
-                <button id="btnAlternarStatus" class="btn-online">Ficar Online</button>
-            </div>
-        </div>
-        <div id="painelCorridasDisponiveis" class="painel-corridas">
-            <h2>Corridas Disponíveis</h2>
-            <div id="listaCorridas">
-                <p class="mensagem-status">Aguardando corridas...</p>
-            </div>
-        </div>
-        <div id="painelCorridaAndamento" class="painel-corrida-ativa" style="display: none;">
-            <h2>Corrida Aceita</h2>
-            <p><strong>Passageiro:</strong> <span id="nomePassageiroAceito"></span></p>
-            <p><strong>Destino:</strong> <span id="destinoPassageiroAceito"></span></p>
-            <button id="btnIniciarCorrida" class="btn-sucesso">Iniciar Corrida</button>
-            <button id="btnFinalizarCorrida" class="btn-erro" style="display: none;">Finalizar Corrida</button>
-        </div>
-        <div id="mapa" class="mapa"></div>
-        <button id="btnSair" class="btn-sair">Sair</button>
+  <header>
+    <img src="img/logo.png" alt="Logo VAMUX" class="logo">
+    <h1>Painel do Motorista</h1>
+  </header>
+
+  <main>
+    <div id="map" class="map"></div>
+
+    <div class="painel">
+      <h2>Corridas Pendentes</h2>
+      <ul id="listaCorridas"></ul>
     </div>
-    <script src="https://maps.googleapis.com/maps/api/js?key=%VITE_Google Maps_API_KEY%&libraries=places&callback=initMap" defer></script>
-    <script type="module" src="src/js/motorista.js" defer></script>
+
+    <div id="corridaAtual" class="status">
+      <h2>Corrida Atual</h2>
+      <p><strong>Passageiro:</strong> <span id="passageiroNome">-</span></p>
+      <p><strong>Origem:</strong> <span id="corridaOrigem">-</span></p>
+      <p><strong>Destino:</strong> <span id="corridaDestino">-</span></p>
+      <p><strong>Status:</strong> <span id="statusCorrida">Nenhuma corrida</span></p>
+      <button id="btnAceitar" class="btn success">Aceitar Corrida</button>
+      <button id="btnFinalizar" class="btn">Finalizar Corrida</button>
+      <button id="btnCancelar" class="btn danger">Cancelar Corrida</button>
+    </div>
+  </main>
+
+  <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_MAPS_KEY&libraries=places"></script>
+  <script type="module" src="src/js/motorista.js" defer></script>
 </body>
 </html>

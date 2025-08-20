@@ -4,9 +4,11 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "vite --port 5175",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "dev:css": "tailwindcss -i ./src/index.css -o ./css/output.css --watch",
+    "start": "npm-run-all -p dev dev:css"
   },
   "dependencies": {
     "@googlemaps/js-api-loader": "^1.16.10",
@@ -14,10 +16,15 @@
     "sweetalert2": "^11.22.3"
   },
   "devDependencies": {
-    "vite": "^5.0.8"
+    "@tailwindcss/cli": "^4.1.12",
+    "@tailwindcss/postcss": "^4.1.12",
+    "autoprefixer": "^10.4.21",
+    "npm-run-all": "^4.1.5",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^4.1.12",
+    "vite": "^7.1.3"
   },
   "description": "Projeto VAMUX - Aplicativo de Mobilidade Urbana.",
-  "main": "frontend/login.html",
   "keywords": [
     "mobilidade",
     "urbana",
